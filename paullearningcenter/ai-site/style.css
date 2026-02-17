@@ -1,0 +1,80 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .hero {
+    height: 100vh;
+    background: linear-gradient(135deg, #0f3d2e, #1f6f3e);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 60%);
+  }
+  
+  .hero-content {
+    position: relative;
+    max-width: 800px;
+    padding: 20px;
+  }
+  
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .subtitle {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+  
+  .description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 35px;
+  }
+  
+  .coming-box {
+    display: inline-block;
+    background: white;
+    color: #1f6f3e;
+    padding: 14px 28px;
+    border-radius: 40px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    font-size: 1rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+  
+  .back-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    border: 2px solid white;
+    border-radius: 30px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    transition: 0.3s ease;
+  }
+  
+  .back-btn:hover {
+    background: white;
+    color: #1f6f3e;
+  }
