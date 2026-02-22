@@ -1,48 +1,60 @@
 const OpenAI = require("openai");
 
-exports.handler = async function (event) {
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+exports.handler = async (event) => {
   try {
-    const { question } = JSON.parse(event.body);
+    const body = JSON.parse(event.body || "{}");
+    const conversation = body.conversation || [];
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    if (conversation.length === 0) {
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reply: "Please ask a math question."
+        })
+      };
+    }
 
-    const completion = await client.chat.completions.create({
+    const response = await client.responses.create({
       model: "gpt-4o-mini",
-      messages: [
+      input: [
         {
           role: "system",
-          content:
-            "You are a calm, teacher-like math tutor for K-8 students. Explain step-by-step clearly and gently.",
+          content: `
+You are a calm K–8 math tutor.
+
+Rules:
+- Never give final answer.
+- Always refer to the student's current problem.
+- Do not change topic.
+- Continue helping with the same problem.
+- Give small hints only.
+- Do not ask unrelated questions.
+- No LaTeX.
+`
         },
-        {
-          role: "user",
-          content: question,
-        },
-      ],
+        ...conversation
+      ]
     });
-
-    console.log("OPENAI RESPONSE:", JSON.stringify(completion, null, 2));
-
-    if (!completion.choices || completion.choices.length === 0) {
-      throw new Error("No choices returned from OpenAI");
-    }
-    
-    const reply = completion.choices[0].message.content;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ answer: reply }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        reply: response.output_text
+      })
     };
-  } catch (error) {
-    console.error("FULL ERROR:", error);
 
+  } catch (error) {
+    console.error(error);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: error.message,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Server error" })
     };
   }
 };
