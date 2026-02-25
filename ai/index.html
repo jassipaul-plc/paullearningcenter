@@ -2,26 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>AI Smart Tutor | Paul Learning Center</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root{
+      --plc-green:#0B5A3C;
+      --plc-green-dark:#08462F;
+    }
+    body { font-family: Arial, sans-serif; margin: 24px; background:#fafafa; }
+    h1 { margin-bottom: 6px; }
+    .small { color:#666; font-size:12px; margin-top: 0; }
+    .modebar { display:flex; gap:10px; align-items:center; margin: 16px 0; }
+    .pill { padding:7px 12px; border:1px solid #ccc; border-radius:999px; cursor:pointer; user-select:none; background:#fff; }
+    .pill.active { background: var(--plc-green); color:#fff; border-color: var(--plc-green); }
+    .pill.active:hover { background: var(--plc-green-dark); border-color: var(--plc-green-dark); }
+
+    .panel { background:#fff; border:1px solid #ddd; border-radius:10px; padding:14px; margin-top: 12px; }
+    .chat-box { border:1px solid #ddd; border-radius:10px; padding:12px; height: 360px; overflow-y:auto; background:#fff; }
+    .message { margin:10px 0; white-space:pre-wrap; }
+    .message.user { font-weight:600; }
+    .input-area { display:flex; gap:10px; margin-top:12px; }
+    input { flex:1; padding:10px; border-radius:8px; border:1px solid #ccc; }
+    button { padding:10px 14px; cursor:pointer; border-radius:8px; border:1px solid #ccc; background:#f4f4f4; }
+    button.primary { background: var(--plc-green); color:#fff; border-color: var(--plc-green); }
+    button.primary:hover { background: var(--plc-green-dark); border-color: var(--plc-green-dark); }
+
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    select, .num { padding:8px; border-radius:8px; border:1px solid #ccc; }
+    .problems { margin-top:12px; }
+    .problem { padding:10px; border:1px solid #eee; border-radius:10px; margin:10px 0; background:#fcfcfc; }
+    .result { margin-top:6px; font-size: 13px; }
+    .good { color: #0a7a2f; font-weight:700; }
+    .bad  { color: #b00020; font-weight:700; }
+    .divider { height:1px; background:#eee; margin: 14px 0; }
+  </style>
 </head>
 <body>
 
-<section class="hero">
-  <h1>Your Personal AI Math Tutor — 24/7</h1>
-  <p>Calm, step-by-step math help for K–8 students.</p>
-</section>
+  <h1>AI Smart Tutor — Paul Learning Center</h1>
+  <p class="small">Homework is deterministic-graded. Guided Fractions is user-initiated and step-by-step validated.</p>
 
-<section class="chat-section">
-  <div id="chatBox" class="chat-box"></div>
-
-  <div class="input-area">
-    <input id="userInput" type="text" placeholder="Ask a math question..." />
-    <button onclick="sendMessage()">Send</button>
+  <div class="modebar">
+    <div id="modeHomework" class="pill active">Homework Generator</div>
+    <div id="modeGuided" class="pill">Guided Fractions Tutor</div>
   </div>
-</section>
 
-<script src="script.js"></script>
+  <!-- HOMEWORK PANEL -->
+  <div id="homeworkPanel" class="panel">
+    <h2 style="margin-top:0;">Homework Generator + Grader</h2>
+
+    <div class="row">
+      <label>Grade:
+        <select id="hwGrade">
+          <option value="4" selected>Grade 4</option>
+        </select>
+      </label>
+
+      <label>Topic:
+        <select id="hwTopic">
+          <option value="fractions_add" selected>Fractions: Add (unlike denominators)</option>
+          <option value="fractions_subtract">Fractions: Subtract (no negatives)</option>
+          <option value="simplify_fraction">Simplify Fractions</option>
+          <option value="mixed_improper">Mixed ↔ Improper Conversions</option>
+        </select>
+      </label>
+
+      <label>Difficulty:
+        <select id="hwDifficulty">
+          <option value="easy" selected>Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+
+      <label># Problems:
+        <input id="hwCount" class="num" type="number" min="1" max="20" value="5" />
+      </label>
+
+      <button id="generateBtn" class="primary">Generate</button>
+      <button id="gradeBtn">Grade Answers</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div id="problemsContainer" class="problems"></div>
+    <div id="scoreContainer" class="result"></div>
+  </div>
+
+  <!-- GUIDED PANEL -->
+  <div id="guidedPanel" class="panel" style="display:none;">
+    <h2 style="margin-top:0;">Guided Fractions Tutor (User Starts)</h2>
+    <p class="small">Type a problem like: <b>1/4 + 1/5 + 1/6</b>. The tutor will guide step-by-step and validate your answers.</p>
+
+    <div id="chatBox" class="chat-box"></div>
+
+    <div class="input-area">
+      <input id="userInput" type="text" placeholder="Type your fraction problem or your answer..." />
+      <button id="sendBtn" class="primary">Send</button>
+      <button id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
