@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[dev]
+  publish = "."
+  functions = "netlify/functions"
+  port = 8888
+  targetPort = 3999
+  autoLaunch = true
