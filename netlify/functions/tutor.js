@@ -27,9 +27,12 @@ function initStudentProgress(studentId) {
         attempts: 0,
         correct: 0,
         incorrect: 0,
+        totalTimeMs: 0,
+        timedAttempts: 0,
       },
       byTopic: {},
       byMode: {},
+      errorTypeByTopic: {},
       recentEvents: [],
       seenEventKeys: {},
     });
@@ -39,7 +42,7 @@ function initStudentProgress(studentId) {
 
 function pct(correct, attempts) {
   if (!attempts) return 0;
-  return Math.round((correct / attempts) * 100);
+  return Number(((correct / attempts) * 100).toFixed(2));
 }
 
 function topicBucket(progress, topic) {
@@ -58,11 +61,20 @@ function modeBucket(progress, mode) {
   return progress.byMode[key];
 }
 
+function errorTypeBucket(progress, topic) {
+  const key = normalize(topic) || "general";
+  if (!progress.errorTypeByTopic[key]) {
+    progress.errorTypeByTopic[key] = {};
+  }
+  return progress.errorTypeByTopic[key];
+}
+
 function recordProgressEvent({
   studentId,
   mode = "general",
   topic = "general",
   isCorrect = false,
+  errorType = "",
   meta = {},
   dedupeKey = "",
 }) {
@@ -86,6 +98,18 @@ function recordProgressEvent({
     progress.totals.incorrect += 1;
     topicStats.incorrect += 1;
     modeStats.incorrect += 1;
+
+    const err = normalize(errorType).toUpperCase();
+    if (err) {
+      const errStats = errorTypeBucket(progress, topic);
+      errStats[err] = (errStats[err] || 0) + 1;
+    }
+  }
+
+  const timeSpentMs = Number(meta?.timeSpentMs);
+  if (Number.isFinite(timeSpentMs) && timeSpentMs > 0) {
+    progress.totals.totalTimeMs += timeSpentMs;
+    progress.totals.timedAttempts += 1;
   }
 
   topicStats.accuracy = pct(topicStats.correct, topicStats.attempts);
@@ -107,18 +131,39 @@ function recordProgressEvent({
 function rankWeakTopics(progress, limit = 3) {
   return Object.entries(progress.byTopic)
     // Mark as weak only when there is enough signal and clear struggle.
-    .filter(([, v]) => v.attempts >= 3 && v.incorrect >= 2 && v.accuracy < 85)
+    .filter(([, v]) => v.attempts >= 3 && v.incorrect >= 2 && pct(v.correct, v.attempts) < 85)
     .sort((a, b) => {
-      if (a[1].accuracy !== b[1].accuracy) return a[1].accuracy - b[1].accuracy;
+      const aAcc = pct(a[1].correct, a[1].attempts);
+      const bAcc = pct(b[1].correct, b[1].attempts);
+      if (aAcc !== bAcc) return aAcc - bAcc;
       return b[1].attempts - a[1].attempts;
     })
     .slice(0, limit)
-    .map(([topic, stats]) => ({ topic, ...stats }));
+    .map(([topic, stats]) => ({ topic, ...stats, accuracy: pct(stats.correct, stats.attempts) }));
 }
 
 function buildProgressSummary(studentId) {
   const progress = initStudentProgress(studentId);
   const totals = progress.totals;
+  const avgTimeSec =
+    totals.timedAttempts > 0 ? Math.round((totals.totalTimeMs / totals.timedAttempts) / 1000) : 0;
+
+  const byTopic = {};
+  for (const [topic, stats] of Object.entries(progress.byTopic || {})) {
+    byTopic[topic] = {
+      ...stats,
+      accuracy: pct(stats.correct, stats.attempts),
+    };
+  }
+
+  const byMode = {};
+  for (const [mode, stats] of Object.entries(progress.byMode || {})) {
+    byMode[mode] = {
+      ...stats,
+      accuracy: pct(stats.correct, stats.attempts),
+    };
+  }
+
   return {
     studentId: progress.studentId,
     createdAt: progress.createdAt,
@@ -126,9 +171,11 @@ function buildProgressSummary(studentId) {
     totals: {
       ...totals,
       accuracy: pct(totals.correct, totals.attempts),
+      averageTimePerProblemSec: avgTimeSec,
     },
-    byTopic: progress.byTopic,
-    byMode: progress.byMode,
+    byTopic,
+    byMode,
+    errorTypeByTopic: progress.errorTypeByTopic,
     weakTopics: rankWeakTopics(progress),
     recentEvents: progress.recentEvents,
   };
@@ -309,24 +356,51 @@ function difficultyRanges(difficulty) {
 function generateFractionsAdd({ count, difficulty }) {
   const { denMin, denMax, threeTerms } = difficultyRanges(difficulty);
   const problems = [];
+  const seen = new Set();
 
   for (let i = 1; i <= count; i++) {
-    const termCount = threeTerms ? 3 : 2;
-    const terms = [];
-    while (terms.length < termCount) {
-      const f = makeProperFraction(denMin, denMax);
-      terms.push(f);
+    let built = null;
+
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const termCount = threeTerms ? 3 : 2;
+      const terms = [];
+      const inQuestionSeen = new Set();
+      while (terms.length < termCount) {
+        const f = makeProperFraction(denMin, denMax);
+        const key = fractionToString(f);
+        if (inQuestionSeen.has(key)) continue;
+        inQuestionSeen.add(key);
+        terms.push(f);
+      }
+
+      const calc = addRationals(terms);
+      const question = terms.map(fractionToString).join(" + ") + " = ?";
+      const sig = `${question}|${fractionToString(calc.simplified)}`;
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      built = { terms, calc, question };
+      break;
     }
-    const calc = addRationals(terms);
-    const question = terms.map(fractionToString).join(" + ") + " = ?";
+
+    if (!built) {
+      const terms = [];
+      const termCount = threeTerms ? 3 : 2;
+      while (terms.length < termCount) terms.push(makeProperFraction(denMin, denMax));
+      built = {
+        terms,
+        calc: addRationals(terms),
+        question: terms.map(fractionToString).join(" + ") + " = ?",
+      };
+    }
+
     problems.push({
       id: i,
-      question,
+      question: built.question,
       expected: {
-        rational: calc.simplified,
+        rational: built.calc.simplified,
         displayKind: "fraction",
       },
-      meta: { terms, calc },
+      meta: { terms: built.terms, calc: built.calc },
     });
   }
   return problems;
@@ -336,36 +410,57 @@ function generateFractionsSubtract({ count, difficulty }) {
   const { denMin, denMax, threeTerms } = difficultyRanges(difficulty);
   // Grade 4 subtraction: avoid negative; allow proper OR improper results.
   const problems = [];
+  const seen = new Set();
 
   for (let i = 1; i <= count; i++) {
-    // Hard can still be 2-term subtraction (keep it simple & grade-appropriate)
-    const a = makeProperFraction(denMin, denMax);
-    let b = makeProperFraction(denMin, denMax);
+    let built = null;
 
-    // ensure a >= b (to avoid negative). If not, swap or regenerate.
-    let tries = 0;
-    while (tries < 20) {
-      // compare a and b by cross-multiplying
-      if (a.num * b.den >= b.num * a.den) break;
-      b = makeProperFraction(denMin, denMax);
-      tries++;
+    for (let attempt = 0; attempt < 40; attempt++) {
+      // Hard can still be 2-term subtraction (keep it simple & grade-appropriate)
+      const a = makeProperFraction(denMin, denMax);
+      let b = makeProperFraction(denMin, denMax);
+
+      // ensure a >= b (to avoid negative). If not, swap or regenerate.
+      let tries = 0;
+      while (tries < 20) {
+        // compare a and b by cross-multiplying
+        if (a.num * b.den >= b.num * a.den) break;
+        b = makeProperFraction(denMin, denMax);
+        tries++;
+      }
+      // If still not safe (rare), swap:
+      const left = a.num * b.den >= b.num * a.den ? a : b;
+      const right = a.num * b.den >= b.num * a.den ? b : a;
+      if (fractionToString(left) === fractionToString(right)) continue;
+
+      const calc = subRationals(left, right);
+      const question = `${fractionToString(left)} - ${fractionToString(right)} = ?`;
+      const sig = `${question}|${fractionToString(calc.simplified)}`;
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      built = { left, right, calc, question };
+      break;
     }
-    // If still not safe (rare), swap:
-    const left = a.num * b.den >= b.num * a.den ? a : b;
-    const right = a.num * b.den >= b.num * a.den ? b : a;
 
-    const calc = subRationals(left, right);
-
-    const question = `${fractionToString(left)} - ${fractionToString(right)} = ?`;
+    if (!built) {
+      const left = makeProperFraction(denMin, denMax);
+      const right = makeProperFraction(denMin, denMax);
+      built = {
+        left,
+        right,
+        calc: subRationals(left, right),
+        question: `${fractionToString(left)} - ${fractionToString(right)} = ?`,
+      };
+    }
 
     problems.push({
       id: i,
-      question,
+      question: built.question,
       expected: {
-        rational: calc.simplified, // may be proper or improper (A + C)
+        rational: built.calc.simplified, // may be proper or improper (A + C)
         displayKind: "fraction",
       },
-      meta: { left, right, calc },
+      meta: { left: built.left, right: built.right, calc: built.calc },
     });
   }
   return problems;
@@ -376,28 +471,40 @@ function generateSimplifyFraction({ count, difficulty }) {
   // Medium/Hard: bigger numbers, still reducible
   const d = (difficulty || "easy").toLowerCase();
   const problems = [];
+  const seen = new Set();
 
   for (let i = 1; i <= count; i++) {
-    let baseDen = d === "hard" ? randomInt(8, 20) : d === "medium" ? randomInt(6, 14) : randomInt(4, 10);
-    let baseNum = randomInt(1, baseDen - 1);
+    let built = null;
+    for (let attempt = 0; attempt < 40; attempt++) {
+      let baseDen = d === "hard" ? randomInt(8, 20) : d === "medium" ? randomInt(6, 14) : randomInt(4, 10);
+      let baseNum = randomInt(1, baseDen - 1);
 
-    // Pick a multiplier to make it reducible
-    const mult = d === "hard" ? randomInt(3, 8) : d === "medium" ? randomInt(2, 6) : randomInt(2, 4);
+      // Pick a multiplier to make it reducible
+      const mult = d === "hard" ? randomInt(3, 8) : d === "medium" ? randomInt(2, 6) : randomInt(2, 4);
 
-    const num = baseNum * mult;
-    const den = baseDen * mult;
-
-    const given = { num, den };
-    const simplified = reduceRational(given);
+      const num = baseNum * mult;
+      const den = baseDen * mult;
+      const sig = `${num}/${den}`;
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      const given = { num, den };
+      const simplified = reduceRational(given);
+      built = { num, den, given, simplified };
+      break;
+    }
+    if (!built) {
+      const given = { num: 6, den: 8 };
+      built = { num: 6, den: 8, given, simplified: reduceRational(given) };
+    }
 
     problems.push({
       id: i,
-      question: `Simplify: ${num}/${den}`,
+      question: `Simplify: ${built.num}/${built.den}`,
       expected: {
-        rational: simplified,
+        rational: built.simplified,
         displayKind: "fraction",
       },
-      meta: { given, simplified },
+      meta: { given: built.given, simplified: built.simplified },
     });
   }
   return problems;
@@ -409,40 +516,62 @@ function generateMixedImproper({ count, difficulty }) {
   // - mixed -> improper
   const d = (difficulty || "easy").toLowerCase();
   const problems = [];
+  const seen = new Set();
 
   for (let i = 1; i <= count; i++) {
-    const denMax = d === "hard" ? 20 : d === "medium" ? 12 : 9;
-    const den = randomInt(2, denMax);
+    let built = null;
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const denMax = d === "hard" ? 20 : d === "medium" ? 12 : 9;
+      const den = randomInt(2, denMax);
 
-    const wholeMax = d === "hard" ? 9 : d === "medium" ? 6 : 4;
-    const w = randomInt(1, wholeMax);
-    const rem = randomInt(1, den - 1);
+      const wholeMax = d === "hard" ? 9 : d === "medium" ? 6 : 4;
+      const w = randomInt(1, wholeMax);
+      const rem = randomInt(1, den - 1);
 
-    const mixedText = `${w} ${rem}/${den}`;
-    const improper = reduceRational({ num: w * den + rem, den });
+      const mixedText = `${w} ${rem}/${den}`;
+      const improper = reduceRational({ num: w * den + rem, den });
 
-    const direction = Math.random() < 0.5 ? "mixed_to_improper" : "improper_to_mixed";
+      const direction = Math.random() < 0.5 ? "mixed_to_improper" : "improper_to_mixed";
+      const question =
+        direction === "mixed_to_improper"
+          ? `Convert to an improper fraction: ${mixedText}`
+          : `Convert to a mixed number: ${fractionToString(improper)}`;
+      const sig = `${direction}|${question}|${fractionToString(improper)}`;
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      built = { direction, mixedText, improper, question };
+      break;
+    }
 
-    if (direction === "mixed_to_improper") {
+    if (!built) {
+      const improper = reduceRational({ num: 7, den: 3 });
+      built = {
+        direction: "improper_to_mixed",
+        mixedText: "2 1/3",
+        improper,
+        question: `Convert to a mixed number: ${fractionToString(improper)}`,
+      };
+    }
+
+    if (built.direction === "mixed_to_improper") {
       problems.push({
         id: i,
-        question: `Convert to an improper fraction: ${mixedText}`,
+        question: built.question,
         expected: {
-          rational: improper,
+          rational: built.improper,
           displayKind: "fraction", // we’ll show correct as fraction
         },
-        meta: { direction, mixedText, improper },
+        meta: { direction: built.direction, mixedText: built.mixedText, improper: built.improper },
       });
     } else {
-      // make an improper fraction question
       problems.push({
         id: i,
-        question: `Convert to a mixed number: ${fractionToString(improper)}`,
+        question: built.question,
         expected: {
-          rational: improper,
+          rational: built.improper,
           displayKind: "mixed", // we’ll show correct as mixed
         },
-        meta: { direction, mixedText, improper },
+        meta: { direction: built.direction, mixedText: built.mixedText, improper: built.improper },
       });
     }
   }
@@ -497,14 +626,192 @@ function formatCorrectAnswer(expected) {
   return fractionToString(expected.rational);
 }
 
-function homeworkGrade({ state, studentAnswers, studentId = "anonymous" }) {
+function pickTopErrorType(mistakeBreakdown = {}) {
+  const entries = Object.entries(mistakeBreakdown || {});
+  if (!entries.length) return "";
+  entries.sort((a, b) => b[1] - a[1]);
+  return entries[0][0] || "";
+}
+
+function mergeErrorTypeCounts(errorTypeByTopic = {}) {
+  const merged = {};
+  for (const topicCounts of Object.values(errorTypeByTopic || {})) {
+    for (const [errorType, count] of Object.entries(topicCounts || {})) {
+      merged[errorType] = (merged[errorType] || 0) + count;
+    }
+  }
+  return merged;
+}
+
+function mapErrorTypeToPractice({ errorType, sourceTopic = "fractions_add", sourceDifficulty = "easy" }) {
+  const err = normalize(errorType).toUpperCase();
+  const srcTopic = (sourceTopic || "fractions_add").toLowerCase();
+  const srcDiff = (sourceDifficulty || "easy").toLowerCase();
+
+  if (err === "SIMPLIFICATION_ERROR") {
+    return {
+      topic: "simplify_fraction",
+      difficulty: srcDiff === "hard" ? "medium" : srcDiff,
+      reason: "Focus on simplifying fractions accurately.",
+    };
+  }
+
+  if (err === "LCM_ERROR") {
+    return {
+      topic: "fractions_add",
+      difficulty: "easy",
+      reason: "Focus on finding a common denominator and converting fractions.",
+    };
+  }
+
+  if (err === "ADDITION_ERROR") {
+    return {
+      topic: "fractions_add",
+      difficulty: "easy",
+      reason: "Focus on adding converted numerators carefully.",
+    };
+  }
+
+  if (err === "SUBTRACTION_ERROR" || err === "OPERATION_ERROR") {
+    return {
+      topic: srcTopic === "fractions_subtract" ? "fractions_subtract" : "fractions_add",
+      difficulty: "easy",
+      reason: "Focus on using the correct operation and arithmetic step-by-step.",
+    };
+  }
+
+  if (err === "CONVERSION_ERROR") {
+    return {
+      topic: "mixed_improper",
+      difficulty: srcDiff === "hard" ? "medium" : srcDiff,
+      reason: "Focus on mixed-number and improper-fraction conversion rules.",
+    };
+  }
+
+  if (err === "FORMAT_ERROR" || err === "UNANSWERED") {
+    return {
+      topic: srcTopic,
+      difficulty: "easy",
+      reason: "Focus on answer format and confidence with basic problems.",
+    };
+  }
+
+  return {
+    topic: srcTopic || "fractions_add",
+    difficulty: srcDiff || "easy",
+    reason: "General targeted practice based on recent mistakes.",
+  };
+}
+
+function classifyHomeworkMistake({ problem, userRaw, userRat, expectedRat, topic }) {
+  if (!normalize(userRaw)) {
+    return {
+      errorType: "UNANSWERED",
+      label: "Unanswered",
+      hint: "Enter an answer before grading.",
+    };
+  }
+
+  if (!userRat) {
+    return {
+      errorType: "FORMAT_ERROR",
+      label: "Invalid Format",
+      hint: "Use formats like a/b or mixed number (e.g., 2 1/3).",
+    };
+  }
+
+  const t = normalize(topic).toLowerCase();
+
+  if (t === "simplify_fraction" && problem.meta?.given && rationalsEqual(userRat, problem.meta.given)) {
+    return {
+      errorType: "SIMPLIFICATION_ERROR",
+      label: "Not Simplified",
+      hint: "Reduce numerator and denominator by their greatest common factor.",
+    };
+  }
+
+  if (t === "fractions_subtract" && problem.meta?.left && problem.meta?.right) {
+    const addInstead = addRationals([problem.meta.left, problem.meta.right]).simplified;
+    if (rationalsEqual(userRat, addInstead)) {
+      return {
+        errorType: "OPERATION_ERROR",
+        label: "Operation Mix-Up",
+        hint: "This is subtraction, not addition.",
+      };
+    }
+  }
+
+  if (t === "fractions_add" && Array.isArray(problem.meta?.terms) && problem.meta.terms.length === 2) {
+    const [a, b] = problem.meta.terms;
+    const bigger = a.num * b.den >= b.num * a.den ? a : b;
+    const smaller = bigger === a ? b : a;
+    const subInstead = subRationals(bigger, smaller).simplified;
+    if (rationalsEqual(userRat, subInstead)) {
+      return {
+        errorType: "OPERATION_ERROR",
+        label: "Operation Mix-Up",
+        hint: "This is addition, not subtraction.",
+      };
+    }
+  }
+
+  if ((t === "fractions_add" || t === "fractions_subtract") && expectedRat && userRat.den !== expectedRat.den) {
+    return {
+      errorType: "LCM_ERROR",
+      label: "Common Denominator Error",
+      hint: "Re-check the least common denominator and conversion step.",
+    };
+  }
+
+  if (t === "mixed_improper") {
+    return {
+      errorType: "CONVERSION_ERROR",
+      label: "Conversion Error",
+      hint: "Re-check whole number and remainder conversion between mixed and improper.",
+    };
+  }
+
+  if (t === "simplify_fraction") {
+    return {
+      errorType: "SIMPLIFICATION_ERROR",
+      label: "Simplification Error",
+      hint: "Find the greatest common factor and divide both numerator and denominator.",
+    };
+  }
+
+  if (t === "fractions_add") {
+    return {
+      errorType: "ADDITION_ERROR",
+      label: "Addition Error",
+      hint: "Re-check converted numerators and addition.",
+    };
+  }
+
+  if (t === "fractions_subtract") {
+    return {
+      errorType: "SUBTRACTION_ERROR",
+      label: "Subtraction Error",
+      hint: "Re-check converted numerators and subtraction order.",
+    };
+  }
+
+  return {
+    errorType: "ARITHMETIC_ERROR",
+    label: "Arithmetic Error",
+    hint: "Re-check the arithmetic and simplify your final answer.",
+  };
+}
+
+function homeworkGrade({ state, studentAnswers, studentId = "anonymous", timingByQuestion = {} }) {
   if (!state?.problems || !Array.isArray(state.problems)) {
     return { ok: false, error: "Missing homework state/problems." };
   }
 
   const answersMap = studentAnswers || {};
+  const safeTimingByQuestion = bodySafeObject(timingByQuestion);
   const results = [];
   let correctCount = 0;
+  const mistakeBreakdown = {};
 
   for (const p of state.problems) {
     const userRaw = normalize(answersMap[p.id]);
@@ -519,16 +826,33 @@ function homeworkGrade({ state, studentAnswers, studentId = "anonymous" }) {
 
     if (isCorrect) correctCount++;
 
+    const mistake = isCorrect
+      ? null
+      : classifyHomeworkMistake({
+          problem: p,
+          userRaw,
+          userRat,
+          expectedRat,
+          topic: state.topic,
+        });
+
+    if (mistake) {
+      mistakeBreakdown[mistake.errorType] = (mistakeBreakdown[mistake.errorType] || 0) + 1;
+    }
+
     recordProgressEvent({
       studentId,
       mode: "homework",
       topic: state.topic || "general",
       isCorrect,
+      errorType: mistake?.errorType || "",
       dedupeKey: `homework:${state.sessionId || "legacy"}:q:${p.id}`,
       meta: {
         sessionId: state.sessionId || "legacy",
         questionId: p.id,
         difficulty: state.difficulty || "easy",
+        errorType: mistake?.errorType || "",
+        timeSpentMs: Number(safeTimingByQuestion[p.id]) || 0,
       },
     });
 
@@ -539,10 +863,12 @@ function homeworkGrade({ state, studentAnswers, studentId = "anonymous" }) {
       question: p.question,
       userAnswer: userRaw || "",
       isCorrect,
+      errorType: mistake?.errorType || null,
       correctAnswer: correctAnswerText,
+      mistake,
       feedback: isCorrect
         ? "✅ Correct"
-        : "❌ Not correct. Check common denominators and simplify (if needed).",
+        : `❌ ${mistake?.label || "Not correct"}. ${mistake?.hint || "Check your work and try again."}`,
     });
   }
 
@@ -554,9 +880,53 @@ function homeworkGrade({ state, studentAnswers, studentId = "anonymous" }) {
       correct: correctCount,
       incorrect: results.length - correctCount,
       scorePercent: Math.round((correctCount / Math.max(1, results.length)) * 100),
+      mistakeBreakdown,
     },
     results,
     progress: buildProgressSummary(studentId),
+  };
+}
+
+function bodySafeObject(v) {
+  return v && typeof v === "object" ? v : {};
+}
+
+function generateTargetedPractice({
+  studentId = "anonymous",
+  sourceState = {},
+  latestMistakeBreakdown = {},
+  count = 5,
+}) {
+  const progress = buildProgressSummary(studentId);
+  const mergedErrors = mergeErrorTypeCounts(progress.errorTypeByTopic || {});
+  const latestTop = pickTopErrorType(latestMistakeBreakdown);
+  const historicalTop = pickTopErrorType(mergedErrors);
+  const chosenErrorType = latestTop || historicalTop || "ARITHMETIC_ERROR";
+
+  const mapped = mapErrorTypeToPractice({
+    errorType: chosenErrorType,
+    sourceTopic: sourceState.topic || "fractions_add",
+    sourceDifficulty: sourceState.difficulty || "easy",
+  });
+
+  const targeted = homeworkGenerate({
+    grade: sourceState.grade || 4,
+    topic: mapped.topic,
+    difficulty: mapped.difficulty,
+    count,
+  });
+
+  return {
+    ...targeted,
+    kind: "targeted_practice",
+    targeted: {
+      errorType: chosenErrorType,
+      sourceTopic: sourceState.topic || "fractions_add",
+      recommendedTopic: mapped.topic,
+      recommendedDifficulty: mapped.difficulty,
+      reason: mapped.reason,
+      message: `Targeted practice generated for ${chosenErrorType}.`,
+    },
   };
 }
 
@@ -1084,8 +1454,19 @@ exports.handler = async (event) => {
         state: body.state,
         studentAnswers: body.studentAnswers,
         studentId: body.studentId,
+        timingByQuestion: body.timingByQuestion,
       });
       return json(result.ok ? 200 : 400, result);
+    }
+
+    if (mode === "targeted_practice_generate") {
+      const result = generateTargetedPractice({
+        studentId: body.studentId,
+        sourceState: body.sourceState || {},
+        latestMistakeBreakdown: body.latestMistakeBreakdown || {},
+        count: body.count ?? 5,
+      });
+      return json(200, result);
     }
 
     if (mode === "progress_event") {

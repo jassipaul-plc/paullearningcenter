@@ -41,6 +41,32 @@
     .divider { height:1px; background:#eee; margin: 14px 0; }
     .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; }
     .stat-card { border:1px solid #eee; border-radius:10px; background:#fcfcfc; padding:10px; }
+    .metric-value { font-size:34px; font-weight:700; line-height:1.1; margin-top:6px; }
+    .metric-value.green { color:#0a7a2f; }
+    .metric-value.orange { color:#d97706; }
+    .metric-value.red { color:#b00020; }
+    .text-green { color:#0a7a2f; }
+    .text-orange { color:#d97706; }
+    .text-red { color:#b00020; }
+    .metric-row { display:flex; gap:10px; align-items:center; margin-top:6px; }
+    .dot { width:12px; height:12px; border-radius:999px; display:inline-block; }
+    .dot.green { background:#0a7a2f; }
+    .dot.orange { background:#d97706; }
+    .dot.red { background:#b00020; }
+    .stat-attempts b,
+    .stat-attempts .metric-value,
+    .stat-correct b,
+    .stat-correct .metric-value { color:#0a7a2f; }
+    .stat-incorrect b,
+    .stat-incorrect .metric-value { color:#b00020; }
+    .section-red { color:#b00020; }
+    .section-orange { color:#b45309; }
+    .section-green { color:#166534; }
+    .section-content { font-size:20px; line-height:1.5; }
+    .recent-green { color:#166534; font-size:20px; line-height:1.5; }
+    #errorTypeStats { color:#b00020; }
+    #weakTopicsList { color:#b45309; }
+    #topicStats { color:#166534; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     @media (max-width: 900px) {
       .app-shell { grid-template-columns: 1fr; }
@@ -100,13 +126,14 @@
       </label>
 
       <button id="generateBtn" class="primary">Generate</button>
-      <button id="gradeBtn">Grade Answers</button>
+      <button id="gradeBtn">Check Answers</button>
     </div>
 
     <div class="divider"></div>
 
     <div id="problemsContainer" class="problems"></div>
     <div id="scoreContainer" class="result"></div>
+    <div id="targetedPracticeBox" class="result" style="margin-top:10px;"></div>
       </div>
 
       <!-- GUIDED PANEL -->
@@ -128,22 +155,27 @@
         <p class="small" style="margin-top:8px;">Student: <b id="studentNameLabel">Jassi</b></p>
 
         <div id="progressSummary" class="stats-grid"></div>
+        <div id="progressHeadline" class="small" style="margin-top:8px;">Student got 0%</div>
+
+        <div class="divider"></div>
+        <h3 class="section-red" style="margin:0 0 6px 0;">Error Pattern Tracking</h3>
+        <div id="errorTypeStats" class="section-content">No error patterns yet.</div>
 
         <div class="divider"></div>
         <div class="row" style="align-items:flex-start;">
           <div style="flex:1; min-width:260px;">
-            <h3 style="margin:0 0 6px 0;">Weak Topics</h3>
-            <div id="weakTopicsList" class="small">No data yet.</div>
+            <h3 class="section-orange" style="margin:0 0 6px 0;">Weak Topics</h3>
+            <div id="weakTopicsList" class="section-content">No data yet.</div>
           </div>
           <div style="flex:2; min-width:300px;">
-            <h3 style="margin:0 0 6px 0;">Topic Accuracy</h3>
-            <div id="topicStats" class="small">No topic attempts yet.</div>
+            <h3 class="section-green" style="margin:0 0 6px 0;">Topic Accuracy</h3>
+            <div id="topicStats" class="section-content">No topic attempts yet.</div>
           </div>
         </div>
 
         <div class="divider"></div>
-        <h3 style="margin:0 0 6px 0;">Recent Activity</h3>
-        <div id="recentActivity" class="small">No activity yet.</div>
+        <h3 class="section-green" style="margin:0 0 6px 0;">Recent Activity</h3>
+        <div id="recentActivity" class="recent-green">No activity yet.</div>
       </div>
     </main>
     </div>

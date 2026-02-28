@@ -38,16 +38,21 @@ const gradeBtn = document.getElementById("gradeBtn");
 
 const problemsContainer = document.getElementById("problemsContainer");
 const scoreContainer = document.getElementById("scoreContainer");
+const targetedPracticeBox = document.getElementById("targetedPracticeBox");
 const studentNameLabel = document.getElementById("studentNameLabel");
 const sessionStudentNameEl = document.getElementById("sessionStudentName");
 const sessionDateEl = document.getElementById("sessionDate");
 const sessionDurationEl = document.getElementById("sessionDuration");
 const progressSummaryEl = document.getElementById("progressSummary");
+const progressHeadlineEl = document.getElementById("progressHeadline");
+const errorTypeStatsEl = document.getElementById("errorTypeStats");
 const weakTopicsListEl = document.getElementById("weakTopicsList");
 const topicStatsEl = document.getElementById("topicStats");
 const recentActivityEl = document.getElementById("recentActivity");
 
 let homeworkState = null;
+let homeworkQuestionState = {};
+let latestMistakeBreakdown = {};
 const studentId = getOrCreateStudentId();
 if (studentNameLabel) studentNameLabel.innerText = studentId;
 if (sessionStudentNameEl) sessionStudentNameEl.innerText = studentId;
@@ -89,6 +94,55 @@ function formatDuration(seconds) {
   return `${h}:${m}:${s}`;
 }
 
+function humanizeErrorType(code) {
+  const str = (code || "").toString().trim();
+  if (!str) return "";
+  return str
+    .split("_")
+    .filter(Boolean)
+    .map((part) => {
+      const upper = part.toUpperCase();
+      if (upper === "LCM" || upper === "GCF" || upper === "GCD") return upper;
+      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
+function humanizeTopicName(topic) {
+  const str = (topic || "").toString().trim();
+  if (!str) return "General";
+  return str
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function accuracyColorClass(accuracy) {
+  const a = Number(accuracy) || 0;
+  if (a < 65) return "red";
+  if (a <= 84) return "orange";
+  return "green";
+}
+
+function accuracyStatus(accuracy) {
+  const a = Number(accuracy) || 0;
+  if (a >= 85) return { color: "green", label: "Mastered (85%+)" };
+  if (a >= 65) return { color: "orange", label: "Developing (65-84%)" };
+  return { color: "red", label: "Needs Practice (<65%)" };
+}
+
+function progressBar(percent) {
+  const p = Math.max(0, Math.min(100, Number(percent) || 0));
+  const blocks = Math.round(p / 10);
+  return "▓".repeat(blocks) + "░".repeat(10 - blocks);
+}
+
+function formatPercent2(value) {
+  const n = Number(value) || 0;
+  return `${n.toFixed(2)}%`;
+}
+
 function startSessionTimer() {
   if (!sessionDurationEl) return;
   const startedAt = Date.now();
@@ -104,26 +158,80 @@ function renderProgress(progress) {
   if (!progress) return;
   const t = progress.totals || {};
   if (progressSummaryEl) {
+    const acc = t.accuracy ?? 0;
+    const accClass = accuracyColorClass(acc);
+    const status = accuracyStatus(acc);
     progressSummaryEl.innerHTML = `
-      <div class="stat-card"><b>Attempts</b><div class="mono">${t.attempts ?? 0}</div></div>
-      <div class="stat-card"><b>Correct</b><div class="mono">${t.correct ?? 0}</div></div>
-      <div class="stat-card"><b>Incorrect</b><div class="mono">${t.incorrect ?? 0}</div></div>
-      <div class="stat-card"><b>Accuracy</b><div class="mono">${t.accuracy ?? 0}%</div></div>
+      <div class="stat-card stat-attempts"><b>Attempts</b><div class="metric-value">${t.attempts ?? 0}</div></div>
+      <div class="stat-card stat-correct"><b>Correct</b><div class="metric-value">${t.correct ?? 0}</div></div>
+      <div class="stat-card stat-incorrect"><b>Incorrect</b><div class="metric-value">${t.incorrect ?? 0}</div></div>
+      <div class="stat-card">
+        <b class="text-${accClass}">Accuracy</b>
+        <div class="metric-row">
+          <span class="dot ${accClass}"></span>
+          <div class="metric-value ${accClass}">${formatPercent2(acc)}</div>
+        </div>
+        <div class="small text-green">🟢 Mastered (85%+)</div>
+        <div class="small text-orange">🟡 Developing (65-84%)</div>
+        <div class="small text-red">🔴 Needs Practice (&lt;65%)</div>
+      </div>
     `;
+  }
+  if (progressHeadlineEl) {
+    const acc = t.accuracy ?? 0;
+    const status = accuracyStatus(acc);
+    const avgSec = t.averageTimePerProblemSec ?? 0;
+    let pace = "Pace Insight: Building baseline.";
+    if (acc < 65 && avgSec >= 90) pace = "Pace Insight: Confusion likely (high time + low accuracy).";
+    else if (acc < 65 && avgSec > 0 && avgSec <= 30) pace = "Pace Insight: Rushing likely (low time + low accuracy).";
+    else if (avgSec > 0) pace = "Pace Insight: Pace looks stable.";
+
+    progressHeadlineEl.innerHTML =
+      `<b class="text-${status.color}">Student got ${formatPercent2(acc)}</b><br/>` +
+      `<span class="text-${status.color}">${status.label}</span><br/>` +
+      `<span>Average time per problem: <b>${avgSec || 0}s</b></span><br/>` +
+      `<span>${pace}</span>`;
+  }
+
+  const byTopicErrors = progress.errorTypeByTopic || {};
+  const mergedErrors = {};
+  for (const topicErrors of Object.values(byTopicErrors)) {
+    for (const [type, count] of Object.entries(topicErrors || {})) {
+      mergedErrors[type] = (mergedErrors[type] || 0) + count;
+    }
+  }
+  const errorRows = Object.entries(mergedErrors).sort((a, b) => b[1] - a[1]);
+  if (errorTypeStatsEl) {
+    const totalErrors = errorRows.reduce((sum, [, count]) => sum + count, 0);
+    errorTypeStatsEl.innerHTML = errorRows.length
+      ? errorRows
+          .map(([type, count]) => {
+            const p = totalErrors ? Math.round((count / totalErrors) * 100) : 0;
+            return `${humanizeErrorType(type)} — ${count} (${p}%) ${progressBar(p)}`;
+          })
+          .join("<br/>")
+      : "No error patterns yet.";
   }
 
   const weak = Array.isArray(progress.weakTopics) ? progress.weakTopics : [];
-  if (weakTopicsListEl) {
-    weakTopicsListEl.innerHTML = weak.length
-      ? weak.map((w) => `${w.topic}: ${w.accuracy}% (${w.correct}/${w.attempts})`).join("<br/>")
-      : "No weak topics yet (need at least 2 attempts per topic).";
-  }
-
   const byTopic = progress.byTopic || {};
   const topics = Object.entries(byTopic);
+  if (weakTopicsListEl) {
+    if (topics.length < 2) {
+      weakTopicsListEl.innerHTML = "Weak topic comparison appears after activity in at least 2 topics.";
+    } else {
+      weakTopicsListEl.innerHTML = weak.length
+        ? weak
+            .map((w) => `${humanizeTopicName(w.topic)}: ${formatPercent2(w.accuracy)} (${w.correct}/${w.attempts})`)
+            .join("<br/>")
+        : "No weak topics right now.";
+    }
+  }
   if (topicStatsEl) {
     topicStatsEl.innerHTML = topics.length
-      ? topics.map(([topic, s]) => `${topic}: ${s.accuracy}% (${s.correct}/${s.attempts})`).join("<br/>")
+      ? topics
+          .map(([topic, s]) => `${humanizeTopicName(topic)}: ${formatPercent2(s.accuracy)} (${s.correct}/${s.attempts})`)
+          .join("<br/>")
       : "No topic attempts yet.";
   }
 
@@ -132,7 +240,7 @@ function renderProgress(progress) {
     recentActivityEl.innerHTML = events.length
       ? events
           .slice(0, 8)
-          .map((e) => `${new Date(e.ts).toLocaleString()} - ${e.mode}/${e.topic} - ${e.isCorrect ? "Correct" : "Incorrect"}`)
+          .map((e) => `${new Date(e.ts).toLocaleString()} - ${humanizeTopicName(e.mode)} / ${humanizeTopicName(e.topic)} - ${e.isCorrect ? "Correct" : "Incorrect"}`)
           .join("<br/>")
       : "No activity yet.";
   }
@@ -154,19 +262,57 @@ async function loadProgress() {
 function renderProblems(problemList) {
   problemsContainer.innerHTML = "";
   scoreContainer.innerHTML = "";
+  if (targetedPracticeBox) targetedPracticeBox.innerHTML = "";
+  homeworkQuestionState = {};
 
   for (const p of problemList) {
+    homeworkQuestionState[p.id] = { tries: 0, revealed: false, startedAtMs: Date.now() };
     const div = document.createElement("div");
     div.className = "problem";
     div.innerHTML = `
       <div><b>Q${p.id}.</b> ${p.question}</div>
-      <div style="margin-top:8px;">
-        <input id="ans_${p.id}" placeholder="Answer (examples: 7/12 or 2 1/3)" />
+      <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+        <input
+          id="ans_${p.id}"
+          name="hw_answer_${Date.now()}_${p.id}"
+          placeholder="Answer (examples: 7/12 or 2 1/3)"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <button id="reveal_${p.id}" type="button">Reveal Answer</button>
       </div>
       <div id="res_${p.id}" class="result"></div>
     `;
     problemsContainer.appendChild(div);
+
+    const revealBtn = document.getElementById(`reveal_${p.id}`);
+    if (revealBtn) {
+      revealBtn.addEventListener("click", () => {
+        const resEl = document.getElementById(`res_${p.id}`);
+        if (!resEl || !homeworkState?.problems) return;
+        const full = homeworkState.problems.find((x) => x.id === p.id);
+        if (!full?.expected) return;
+        const correct = formatCorrectFromExpected(full.expected);
+        homeworkQuestionState[p.id].revealed = true;
+        resEl.innerHTML = `<span class="small"><b>Answer:</b> ${correct}</span>`;
+      });
+    }
   }
+}
+
+function formatCorrectFromExpected(expected) {
+  if (!expected?.rational) return "";
+  const r = expected.rational;
+  if (expected.displayKind === "mixed") {
+    const w = Math.floor(r.num / r.den);
+    const rem = r.num % r.den;
+    if (rem === 0) return String(w);
+    if (w === 0) return `${rem}/${r.den}`;
+    return `${w} ${rem}/${r.den}`;
+  }
+  return `${r.num}/${r.den}`;
 }
 
 async function generateHomework() {
@@ -206,9 +352,15 @@ async function gradeHomework() {
   }
 
   const studentAnswers = {};
+  const timingByQuestion = {};
+  const nowMs = Date.now();
   for (const p of homeworkState.problems) {
     const inp = document.getElementById(`ans_${p.id}`);
     studentAnswers[p.id] = inp ? inp.value.trim() : "";
+    const qState = homeworkQuestionState[p.id];
+    if (qState && qState.startedAtMs && studentAnswers[p.id]) {
+      timingByQuestion[p.id] = Math.max(0, nowMs - qState.startedAtMs);
+    }
   }
 
   const res = await fetch(tutorEndpoint(), {
@@ -219,6 +371,7 @@ async function gradeHomework() {
       studentId,
       state: homeworkState,
       studentAnswers,
+      timingByQuestion,
     }),
   });
 
@@ -232,17 +385,94 @@ async function gradeHomework() {
   for (const r of data.results) {
     const el = document.getElementById(`res_${r.id}`);
     if (!el) continue;
+    const qState = homeworkQuestionState[r.id] || { tries: 0, revealed: false };
+    if (!r.isCorrect && r.userAnswer) qState.tries += 1;
+    homeworkQuestionState[r.id] = qState;
 
     if (r.isCorrect) {
       el.innerHTML = `<span class="good">✅ Correct</span>`;
     } else {
-      el.innerHTML = `<span class="bad">❌ Incorrect</span> &nbsp; Correct: <b>${r.correctAnswer}</b><br/><span class="small">${r.feedback}</span>`;
+      const triesText = `<span class="small">Attempt ${Math.min(qState.tries, 3)}/3</span>`;
+      const hintText = `<span class="small">${r.feedback}</span>`;
+      const autoReveal = qState.tries >= 3 || qState.revealed;
+      if (autoReveal) {
+        qState.revealed = true;
+        el.innerHTML =
+          `<span class="bad">❌ Incorrect</span> ${triesText}<br/>` +
+          `${hintText}<br/>` +
+          `<span class="small"><b>Answer:</b> ${r.correctAnswer}</span>`;
+      } else {
+        el.innerHTML =
+          `<span class="bad">❌ Incorrect</span> ${triesText}<br/>` +
+          `${hintText}<br/>` +
+          `<span class="small">Try again, or click <b>Reveal Answer</b>.</span>`;
+      }
     }
   }
 
   const s = data.summary;
+  latestMistakeBreakdown = s.mistakeBreakdown || {};
   scoreContainer.innerHTML = `<b>Score:</b> ${s.correct}/${s.total} (${s.scorePercent}%)`;
+  renderTargetedPracticeCTA(s);
   renderProgress(data.progress);
+}
+
+function renderTargetedPracticeCTA(summary) {
+  if (!targetedPracticeBox) return;
+  const incorrect = summary?.incorrect || 0;
+  const topError = pickTopErrorTypeClient(latestMistakeBreakdown);
+
+  if (incorrect <= 0) {
+    targetedPracticeBox.innerHTML = `<span class="good">Great work. No targeted practice needed right now.</span>`;
+    return;
+  }
+
+  const readable = topError ? humanizeErrorType(topError) : "recent mistakes";
+  targetedPracticeBox.innerHTML = `
+    <div class="small">
+      Recommended targeted practice: <b>${readable}</b>
+      <button id="generateTargetedBtn" class="primary" style="margin-left:10px;">Generate Targeted Practice</button>
+    </div>
+  `;
+
+  const btn = document.getElementById("generateTargetedBtn");
+  if (btn) btn.addEventListener("click", generateTargetedPractice);
+}
+
+function pickTopErrorTypeClient(mistakeBreakdown) {
+  const entries = Object.entries(mistakeBreakdown || {});
+  if (!entries.length) return "";
+  entries.sort((a, b) => b[1] - a[1]);
+  return entries[0][0] || "";
+}
+
+async function generateTargetedPractice() {
+  if (!homeworkState) return;
+  const count = hwCount.value || 5;
+  const res = await fetch(tutorEndpoint(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mode: "targeted_practice_generate",
+      studentId,
+      sourceState: homeworkState,
+      latestMistakeBreakdown,
+      count,
+    }),
+  });
+
+  const data = await res.json();
+  if (!data.ok) {
+    if (targetedPracticeBox) targetedPracticeBox.innerHTML = `<span class="bad">Failed to generate targeted practice.</span>`;
+    return;
+  }
+
+  homeworkState = data.state;
+  renderProblems(data.homework.problems);
+  if (targetedPracticeBox) {
+    const what = humanizeErrorType(data.targeted?.errorType || "");
+    targetedPracticeBox.innerHTML = `<span class="small">Loaded targeted practice for <b>${what || "recent mistakes"}</b>. ${data.targeted?.reason || ""}</span>`;
+  }
 }
 
 generateBtn.addEventListener("click", generateHomework);
