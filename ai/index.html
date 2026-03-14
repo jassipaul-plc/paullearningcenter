@@ -6,24 +6,69 @@
   <title>AI Smart Tutor | Paul Learning Center</title>
   <style>
     :root{
-      --plc-green:#0B5A3C;
-      --plc-green-dark:#08462F;
+      --plc-green:#6d28d9;
+      --plc-green-dark:#5b21b6;
+      --title-purple:#5b21b6;
+      --menu-bg:#f7f8fc;
+      --menu-border:#e8eaf2;
+      --menu-text:#334155;
+      --menu-muted:#9aa3b2;
+      --menu-active-bg:#e9e7ff;
+      --menu-active-text:#5b61f6;
+      --menu-hover:#f1f3fb;
+      --bg:#fafafa;
+      --panel:#ffffff;
+      --text:#111827;
+      --muted:#666;
+      --border:#ddd;
     }
-    body { font-family: Arial, sans-serif; margin: 24px; background:#fafafa; }
-    h1 { margin-bottom: 6px; }
-    .small { color:#666; font-size:12px; margin-top: 0; }
+    body { font-family: Arial, sans-serif; margin: 24px; background:var(--bg); color:var(--text); }
+    h1 { margin:0; color:var(--title-purple); }
+    h2 { color:var(--title-purple); }
+    h3 { color:var(--title-purple); }
+    .hero-subtitle { font-size:15px; color:var(--title-purple); margin:6px 0 0 0; }
+    .small { color:var(--muted); font-size:12px; margin-top: 0; }
+    .header-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+    .header-actions { margin-left:auto; display:flex; align-items:center; gap:12px; }
+    .auth-box { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:var(--panel); }
+    .auth-box input { width:160px; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--text); }
+    .auth-status { font-size:12px; color:var(--muted); min-width:180px; }
+    .top-tools { display:flex; align-items:center; justify-content:flex-start; gap:12px; width:fit-content; color:var(--text); }
+    .tool-btn { border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:10px; padding:8px 10px; cursor:pointer; font-weight:600; }
+    .notification-wrap,
+    .profile-wrap { position:relative; }
+    .icon-btn { position:relative; border:1px solid var(--border); background:var(--panel); color:var(--text); border-radius:10px; padding:8px 10px; cursor:pointer; font-size:18px; line-height:1; }
+    .icon-btn:hover { background:var(--menu-hover); }
+    .notif-dot { position:absolute; top:5px; right:6px; width:8px; height:8px; border-radius:999px; background:#ef4444; border:1px solid var(--panel); }
+    .profile-chip { display:flex; align-items:center; gap:10px; padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:var(--panel); color:var(--text); cursor:pointer; }
+    .notification-menu,
+    .profile-menu { position:absolute; right:0; top:calc(100% + 8px); min-width:180px; border:1px solid var(--border); background:var(--panel); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.12); padding:6px; display:none; z-index:20; }
+    .notification-menu { min-width:280px; }
+    .notification-menu.open,
+    .profile-menu.open { display:block; }
+    .notification-title { padding:8px 10px; font-size:13px; color:var(--muted); border-bottom:1px solid var(--border); margin-bottom:4px; }
+    .notification-item { border-radius:8px; padding:10px; background:transparent; color:var(--text); }
+    .notification-item:hover { background:var(--menu-hover); }
+    .notification-item b { display:block; margin-bottom:2px; font-size:14px; }
+    .notification-item span { font-size:12px; color:var(--muted); }
+    .profile-item { width:100%; text-align:left; border:0; background:transparent; color:var(--text); padding:10px 12px; border-radius:8px; cursor:pointer; font-size:14px; }
+    .profile-item:hover { background:var(--menu-hover); }
+    .avatar { width:30px; height:30px; border-radius:999px; background:#c7d2fe; color:#312e81; display:grid; place-items:center; font-weight:700; }
     .session-bar { display:flex; gap:14px; flex-wrap:wrap; align-items:center; background:#fff; border:1px solid #ddd; border-radius:10px; padding:10px 12px; margin-top: 10px; }
     .session-chip { font-size:13px; color:#333; }
     .app-shell { display:grid; grid-template-columns: 240px 1fr; gap:14px; margin-top: 14px; }
-    .side-menu { background:#fff; border:1px solid #ddd; border-radius:10px; padding:10px; height: fit-content; }
-    .menu-item { width:100%; text-align:left; margin:6px 0; padding:10px 12px; border:1px solid #ccc; border-radius:8px; cursor:pointer; background:#fff; }
-    .menu-item.active { background: var(--plc-green); color:#fff; border-color: var(--plc-green); }
-    .menu-item.active:hover { background: var(--plc-green-dark); border-color: var(--plc-green-dark); }
+    .side-menu { background:var(--menu-bg); border:1px solid var(--menu-border); border-radius:14px; padding:12px; height: fit-content; }
+    .menu-title { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--menu-muted); font-weight:700; margin:4px 8px 10px 8px; }
+    .menu-item { width:100%; text-align:left; margin:6px 0; padding:12px 14px; border:0; border-radius:12px; cursor:pointer; background:transparent; color:var(--menu-text); font-size:15px; font-weight:600; display:flex; align-items:center; gap:10px; }
+    .menu-item:hover { background:var(--menu-hover); }
+    .menu-item.active { background:var(--menu-active-bg); color:var(--menu-active-text); box-shadow: inset 3px 0 0 var(--menu-active-text); }
+    .menu-item.active:hover { background:var(--menu-active-bg); }
+    .menu-icon { width:18px; text-align:center; opacity:.9; }
     .content-area { min-width: 0; }
 
-    .panel { background:#fff; border:1px solid #ddd; border-radius:10px; padding:14px; margin-top: 12px; }
-    .chat-box { border:1px solid #ddd; border-radius:10px; padding:12px; height: 360px; overflow-y:auto; background:#fff; }
-    .message { margin:10px 0; white-space:pre-wrap; }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px; margin-top: 12px; }
+    .chat-box { border:1px solid #ddd; border-radius:10px; padding:12px; height: 360px; overflow-y:auto; background:#fff; color:#111827; }
+    .message { margin:10px 0; white-space:pre-wrap; color:#111827; }
     .message.user { font-weight:600; }
     .input-area { display:flex; gap:10px; margin-top:12px; }
     input { flex:1; padding:10px; border-radius:8px; border:1px solid #ccc; }
@@ -39,6 +84,8 @@
     .good { color: #0a7a2f; font-weight:700; }
     .bad  { color: #b00020; font-weight:700; }
     .divider { height:1px; background:#eee; margin: 14px 0; }
+    .practice-banner { display:none; align-items:center; justify-content:space-between; gap:10px; border:1px solid #ddd6fe; background:#f5f3ff; color:#5b21b6; border-radius:10px; padding:10px 12px; margin-top:10px; }
+    .practice-banner b { color:#4c1d95; }
     .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; }
     .stat-card { border:1px solid #eee; border-radius:10px; background:#fcfcfc; padding:10px; }
     .metric-value { font-size:34px; font-weight:700; line-height:1.1; margin-top:6px; }
@@ -64,32 +111,103 @@
     .section-green { color:#166534; }
     .section-content { font-size:20px; line-height:1.5; }
     .recent-green { color:#166534; font-size:20px; line-height:1.5; }
-    #errorTypeStats { color:#b00020; }
+    #errorTypeStats { color:#166534; }
     #weakTopicsList { color:#b45309; }
     #topicStats { color:#166534; }
+    .error-row { display:block; margin:8px 0; }
+    .error-label { color:#166534; font-weight:600; }
+    .error-track { width:320px; max-width:100%; height:14px; border-radius:999px; background:#d1fae5; border:1px solid #86efac; overflow:hidden; margin-top:6px; }
+    .error-fill { height:100%; background:#16a34a; border-radius:999px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     @media (max-width: 900px) {
       .app-shell { grid-template-columns: 1fr; }
-      .side-menu { display:flex; gap:8px; flex-wrap:wrap; }
+      .side-menu { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+      .menu-title { width:100%; margin-bottom:4px; }
       .menu-item { width:auto; margin:0; }
+    }
+    body.dark {
+      --bg:#0f172a;
+      --panel:#111827;
+      --text:#ffffff;
+      --muted:#f3f4f6;
+      --border:#374151;
+      --title-purple:#c4b5fd;
+      --menu-bg:#111827;
+      --menu-border:#374151;
+      --menu-text:#ffffff;
+      --menu-muted:#e5e7eb;
+      --menu-active-bg:#2b2a52;
+      --menu-active-text:#a5b4fc;
+      --menu-hover:#1f2937;
     }
   </style>
 </head>
 <body>
-
-  <h1>AI Smart Tutor — Paul Learning Center</h1>
-  <p class="small">Homework is deterministic-graded. Guided Tutor is user-initiated and step-by-step validated.</p>
+  <div class="header-row">
+    <h1>AI Smart Tutor — Paul Learning Center</h1>
+    <div class="header-actions">
+      <div class="auth-box">
+        <input id="authDisplayName" type="text" placeholder="Display name" />
+        <input id="authEmail" type="email" placeholder="Email" />
+        <input id="authPassword" type="password" placeholder="Password" />
+        <button id="authSignupBtn" class="primary" type="button">Sign Up</button>
+        <button id="authLoginBtn" type="button">Login</button>
+        <button id="authLogoutBtn" type="button">Logout</button>
+        <span id="authStatus" class="auth-status">Not logged in</span>
+      </div>
+      <div class="top-tools">
+        <button id="themeToggleBtn" class="tool-btn">🌞 Light</button>
+        <div class="notification-wrap">
+          <button id="notificationBtn" class="icon-btn" type="button" aria-label="Notifications">
+            🔔
+            <span class="notif-dot"></span>
+          </button>
+          <div id="notificationMenu" class="notification-menu">
+            <div class="notification-title">Notifications</div>
+            <div class="notification-item">
+              <b>New progress summary ready</b>
+              <span>Student performance updated after the latest homework.</span>
+            </div>
+            <div class="notification-item">
+              <b>Guided tutor reminder</b>
+              <span>Try one guided practice session today.</span>
+            </div>
+            <div class="notification-item">
+              <b>Payment feature coming soon</b>
+              <span>Billing and card setup will be enabled in a future update.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-wrap">
+        <button id="profileMenuBtn" class="profile-chip" type="button" aria-label="Profile menu">
+          <div class="avatar">JP</div>
+        </button>
+        <div id="profileMenu" class="profile-menu">
+          <button id="profileSettingsBtn" class="profile-item" type="button">Settings</button>
+          <button id="profilePaymentBtn" class="profile-item" type="button">Payment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="hero-subtitle">Homework is deterministic-graded. Guided Tutor is user-initiated and step-by-step validated.</p>
   <div class="session-bar">
-    <div class="session-chip">Student: <b id="sessionStudentName">Jassi Paul</b></div>
+    <div class="session-chip">Student:
+      <select id="studentSelect" style="margin-left:6px; padding:4px 8px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--text);">
+        <option value="Pearlin">Pearlin</option>
+        <option value="Prajveer">Prajveer</option>
+      </select>
+    </div>
     <div class="session-chip">Today: <b id="sessionDate">-</b></div>
     <div class="session-chip">Session Time: <b id="sessionDuration">00:00:00</b></div>
   </div>
 
   <div class="app-shell">
     <aside class="side-menu">
-      <button id="menuHomework" class="menu-item active">Homework Generator</button>
-      <button id="menuGuided" class="menu-item">Guided Tutor</button>
-      <button id="menuProgress" class="menu-item">Student Progress</button>
+      <div class="menu-title">Learning Tools</div>
+      <button id="menuHomework" class="menu-item active"><span class="menu-icon">📘</span>Homework Generator</button>
+      <button id="menuGuided" class="menu-item"><span class="menu-icon">🧠</span>Guided Tutor</button>
+      <button id="menuProgress" class="menu-item"><span class="menu-icon">📈</span>Student Progress</button>
     </aside>
 
     <main class="content-area">
@@ -110,6 +228,9 @@
           <option value="fractions_subtract">Fractions: Subtract (no negatives)</option>
           <option value="simplify_fraction">Simplify Fractions</option>
           <option value="mixed_improper">Mixed ↔ Improper Conversions</option>
+          <option value="algebra_substitution">Algebra: Evaluate expressions (substitution)</option>
+          <option value="algebra_one_step">Algebra: One-step equations</option>
+          <option value="algebra_exponents">Algebra: Exponents basics</option>
         </select>
       </label>
 
@@ -130,6 +251,11 @@
     </div>
 
     <div class="divider"></div>
+
+    <div id="practiceBanner" class="practice-banner">
+      <div id="practiceBannerText"><b>Targeted Practice:</b> Skill</div>
+      <button id="exitPracticeBtn" type="button">Exit Practice</button>
+    </div>
 
     <div id="problemsContainer" class="problems"></div>
     <div id="scoreContainer" class="result"></div>
@@ -152,10 +278,14 @@
 
       <div id="progressPanel" class="panel" style="display:none;">
         <h2 style="margin:0;">Student Progress</h2>
-        <p class="small" style="margin-top:8px;">Student: <b id="studentNameLabel">Jassi</b></p>
+        <p class="small" style="margin-top:8px;">Student: <b id="studentNameLabel">Pearlin</b></p>
 
         <div id="progressSummary" class="stats-grid"></div>
         <div id="progressHeadline" class="small" style="margin-top:8px;">Student got 0%</div>
+
+        <div class="divider"></div>
+        <h3 class="section-green" style="margin:0 0 6px 0;">✨ Recommended Practice</h3>
+        <div id="recommendedPracticeBox" class="section-content">No recommendation yet.</div>
 
         <div class="divider"></div>
         <h3 class="section-red" style="margin:0 0 6px 0;">Error Pattern Tracking</h3>
@@ -180,6 +310,8 @@
     </main>
     </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseClient.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
