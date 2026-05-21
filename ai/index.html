@@ -2,184 +2,119 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>AI Smart Tutor | Paul Learning Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Learning | Paul Learning Center</title>
   <style>
-    :root{
-      --plc-green:#0B5A3C;
-      --plc-green-dark:#08462F;
+    * {
+      box-sizing: border-box;
     }
-    body { font-family: Arial, sans-serif; margin: 24px; background:#fafafa; }
-    h1 { margin-bottom: 6px; }
-    .small { color:#666; font-size:12px; margin-top: 0; }
-    .session-bar { display:flex; gap:14px; flex-wrap:wrap; align-items:center; background:#fff; border:1px solid #ddd; border-radius:10px; padding:10px 12px; margin-top: 10px; }
-    .session-chip { font-size:13px; color:#333; }
-    .app-shell { display:grid; grid-template-columns: 240px 1fr; gap:14px; margin-top: 14px; }
-    .side-menu { background:#fff; border:1px solid #ddd; border-radius:10px; padding:10px; height: fit-content; }
-    .menu-item { width:100%; text-align:left; margin:6px 0; padding:10px 12px; border:1px solid #ccc; border-radius:8px; cursor:pointer; background:#fff; }
-    .menu-item.active { background: var(--plc-green); color:#fff; border-color: var(--plc-green); }
-    .menu-item.active:hover { background: var(--plc-green-dark); border-color: var(--plc-green-dark); }
-    .content-area { min-width: 0; }
 
-    .panel { background:#fff; border:1px solid #ddd; border-radius:10px; padding:14px; margin-top: 12px; }
-    .chat-box { border:1px solid #ddd; border-radius:10px; padding:12px; height: 360px; overflow-y:auto; background:#fff; }
-    .message { margin:10px 0; white-space:pre-wrap; }
-    .message.user { font-weight:600; }
-    .input-area { display:flex; gap:10px; margin-top:12px; }
-    input { flex:1; padding:10px; border-radius:8px; border:1px solid #ccc; }
-    button { padding:10px 14px; cursor:pointer; border-radius:8px; border:1px solid #ccc; background:#f4f4f4; }
-    button.primary { background: var(--plc-green); color:#fff; border-color: var(--plc-green); }
-    button.primary:hover { background: var(--plc-green-dark); border-color: var(--plc-green-dark); }
+    body {
+      background: #24563a;
+      color: #ffffff;
+      display: grid;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      place-items: center;
+    }
 
-    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-    select, .num { padding:8px; border-radius:8px; border:1px solid #ccc; }
-    .problems { margin-top:12px; }
-    .problem { padding:10px; border:1px solid #eee; border-radius:10px; margin:10px 0; background:#fcfcfc; }
-    .result { margin-top:6px; font-size: 13px; }
-    .good { color: #0a7a2f; font-weight:700; }
-    .bad  { color: #b00020; font-weight:700; }
-    .divider { height:1px; background:#eee; margin: 14px 0; }
-    .stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; }
-    .stat-card { border:1px solid #eee; border-radius:10px; background:#fcfcfc; padding:10px; }
-    .metric-value { font-size:34px; font-weight:700; line-height:1.1; margin-top:6px; }
-    .metric-value.green { color:#0a7a2f; }
-    .metric-value.orange { color:#d97706; }
-    .metric-value.red { color:#b00020; }
-    .text-green { color:#0a7a2f; }
-    .text-orange { color:#d97706; }
-    .text-red { color:#b00020; }
-    .metric-row { display:flex; gap:10px; align-items:center; margin-top:6px; }
-    .dot { width:12px; height:12px; border-radius:999px; display:inline-block; }
-    .dot.green { background:#0a7a2f; }
-    .dot.orange { background:#d97706; }
-    .dot.red { background:#b00020; }
-    .stat-attempts b,
-    .stat-attempts .metric-value,
-    .stat-correct b,
-    .stat-correct .metric-value { color:#0a7a2f; }
-    .stat-incorrect b,
-    .stat-incorrect .metric-value { color:#b00020; }
-    .section-red { color:#b00020; }
-    .section-orange { color:#b45309; }
-    .section-green { color:#166534; }
-    .section-content { font-size:20px; line-height:1.5; }
-    .recent-green { color:#166534; font-size:20px; line-height:1.5; }
-    #errorTypeStats { color:#b00020; }
-    #weakTopicsList { color:#b45309; }
-    #topicStats { color:#166534; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    @media (max-width: 900px) {
-      .app-shell { grid-template-columns: 1fr; }
-      .side-menu { display:flex; gap:8px; flex-wrap:wrap; }
-      .menu-item { width:auto; margin:0; }
+    main {
+      max-width: 1040px;
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3.5rem, 7vw, 5.3rem);
+      line-height: 1;
+      margin: 0 0 34px;
+    }
+
+    .tagline {
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      line-height: 1.3;
+      margin: 0 0 46px;
+    }
+
+    .message {
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      font-weight: 600;
+      line-height: 1.55;
+      margin: 0 auto 50px;
+      max-width: 980px;
+    }
+
+    .actions {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .status,
+    .back-link {
+      align-items: center;
+      border-radius: 999px;
+      display: inline-flex;
+      font-size: clamp(1rem, 1.6vw, 1.35rem);
+      font-weight: 700;
+      justify-content: center;
+      min-height: 74px;
+      padding: 18px 38px;
+      text-decoration: none;
+    }
+
+    .status {
+      background: #ffffff;
+      color: #2d6b48;
+    }
+
+    .back-link {
+      border: 3px solid #ffffff;
+      color: #ffffff;
+    }
+
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        margin-bottom: 24px;
+      }
+
+      .tagline {
+        margin-bottom: 28px;
+      }
+
+      .message {
+        margin-bottom: 34px;
+      }
+
+      .status,
+      .back-link {
+        min-height: 62px;
+        padding: 16px 26px;
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-
-  <h1>AI Smart Tutor — Paul Learning Center</h1>
-  <p class="small">Homework is deterministic-graded. Guided Tutor is user-initiated and step-by-step validated.</p>
-  <div class="session-bar">
-    <div class="session-chip">Student: <b id="sessionStudentName">Jassi Paul</b></div>
-    <div class="session-chip">Today: <b id="sessionDate">-</b></div>
-    <div class="session-chip">Session Time: <b id="sessionDuration">00:00:00</b></div>
-  </div>
-
-  <div class="app-shell">
-    <aside class="side-menu">
-      <button id="menuHomework" class="menu-item active">Homework Generator</button>
-      <button id="menuGuided" class="menu-item">Guided Tutor</button>
-      <button id="menuProgress" class="menu-item">Student Progress</button>
-    </aside>
-
-    <main class="content-area">
-      <!-- HOMEWORK PANEL -->
-      <div id="homeworkPanel" class="panel" style="margin-top:0;">
-        <h2 style="margin-top:0;">Homework Generator + Grader</h2>
-
-    <div class="row">
-      <label>Grade:
-        <select id="hwGrade">
-          <option value="4" selected>Grade 4</option>
-        </select>
-      </label>
-
-      <label>Topic:
-        <select id="hwTopic">
-          <option value="fractions_add" selected>Fractions: Add (unlike denominators)</option>
-          <option value="fractions_subtract">Fractions: Subtract (no negatives)</option>
-          <option value="simplify_fraction">Simplify Fractions</option>
-          <option value="mixed_improper">Mixed ↔ Improper Conversions</option>
-        </select>
-      </label>
-
-      <label>Difficulty:
-        <select id="hwDifficulty">
-          <option value="easy" selected>Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      </label>
-
-      <label># Problems:
-        <input id="hwCount" class="num" type="number" min="1" max="20" value="5" />
-      </label>
-
-      <button id="generateBtn" class="primary">Generate</button>
-      <button id="gradeBtn">Check Answers</button>
+  <main>
+    <h1>AI Learning</h1>
+    <p class="tagline">The Future of Education Starts Here</p>
+    <p class="message">
+      We are building an innovative AI-powered learning platform designed to help
+      students master Math, ELA, and future-ready skills with personalized guidance.
+    </p>
+    <div class="actions">
+      <span class="status">&#128640;&nbsp;Launching Soon</span>
+      <a class="back-link" href="../index.html">&larr;&nbsp;Back to Main Site</a>
     </div>
-
-    <div class="divider"></div>
-
-    <div id="problemsContainer" class="problems"></div>
-    <div id="scoreContainer" class="result"></div>
-    <div id="targetedPracticeBox" class="result" style="margin-top:10px;"></div>
-      </div>
-
-      <!-- GUIDED PANEL -->
-      <div id="guidedPanel" class="panel" style="display:none;">
-        <h2 style="margin-top:0;">Guided Tutor (User Starts)</h2>
-        <p class="small">Type a problem like: <b>1/4 + 1/5 + 1/6</b>, or ask a related fraction question. The tutor guides and validates step-by-step.</p>
-
-        <div id="chatBox" class="chat-box"></div>
-
-        <div class="input-area">
-          <input id="userInput" type="text" placeholder="Type a problem, question, or your answer..." />
-          <button id="sendBtn" class="primary">Send</button>
-          <button id="restartBtn">Restart</button>
-        </div>
-      </div>
-
-      <div id="progressPanel" class="panel" style="display:none;">
-        <h2 style="margin:0;">Student Progress</h2>
-        <p class="small" style="margin-top:8px;">Student: <b id="studentNameLabel">Jassi</b></p>
-
-        <div id="progressSummary" class="stats-grid"></div>
-        <div id="progressHeadline" class="small" style="margin-top:8px;">Student got 0%</div>
-
-        <div class="divider"></div>
-        <h3 class="section-red" style="margin:0 0 6px 0;">Error Pattern Tracking</h3>
-        <div id="errorTypeStats" class="section-content">No error patterns yet.</div>
-
-        <div class="divider"></div>
-        <div class="row" style="align-items:flex-start;">
-          <div style="flex:1; min-width:260px;">
-            <h3 class="section-orange" style="margin:0 0 6px 0;">Weak Topics</h3>
-            <div id="weakTopicsList" class="section-content">No data yet.</div>
-          </div>
-          <div style="flex:2; min-width:300px;">
-            <h3 class="section-green" style="margin:0 0 6px 0;">Topic Accuracy</h3>
-            <div id="topicStats" class="section-content">No topic attempts yet.</div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-        <h3 class="section-green" style="margin:0 0 6px 0;">Recent Activity</h3>
-        <div id="recentActivity" class="recent-green">No activity yet.</div>
-      </div>
-    </main>
-    </div>
-
-  <script src="script.js"></script>
+  </main>
 </body>
 </html>
