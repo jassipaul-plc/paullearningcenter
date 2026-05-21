@@ -344,13 +344,6 @@ function authStatus(text, isError = false) {
   authStatusEl.style.color = isError ? "#b00020" : "";
 }
 
-function goToAuthPage() {
-  if (typeof window === "undefined") return;
-  const isAuthPage = /\/auth\.html$/i.test(window.location.pathname || "");
-  if (isAuthPage) return;
-  window.location.href = "auth.html";
-}
-
 function tutorEndpoint() {
   // Netlify dev serves static files on :3999 and functions/proxy on :8888.
   // If user opens :3999 directly (localhost or 127.0.0.1), force requests to :8888.
@@ -485,7 +478,6 @@ async function applyAuthSession(user, preferredDisplayName = "") {
     setAuthUiForLoggedOut();
     initStudentSelector();
     loadProgress();
-    goToAuthPage();
     return;
   }
 
@@ -568,7 +560,6 @@ async function handleLogout() {
     return;
   }
   await applyAuthSession(null);
-  goToAuthPage();
 }
 
 async function initAuth() {
