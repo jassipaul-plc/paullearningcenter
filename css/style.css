@@ -122,6 +122,79 @@ body {
   text-decoration: none;
 }
 
+@media (max-width: 1100px) {
+  .navbar {
+    padding: 14px 20px;
+  }
+
+  .nav-inner,
+  .left-side {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .nav-inner {
+    gap: 12px;
+  }
+
+  .left-side {
+    gap: 12px;
+  }
+
+  .logo {
+    align-self: center;
+    height: 50px;
+    width: auto;
+  }
+
+  .menu {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    justify-content: center;
+  }
+
+  .summer-session-item {
+    display: flex;
+    flex-basis: 100%;
+    justify-content: center;
+    order: -1;
+  }
+
+  .menu li .summer-session-link {
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .right-side {
+    gap: 16px;
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 12px;
+  }
+
+  .menu {
+    gap: 10px 14px;
+  }
+
+  .menu li a {
+    font-size: 1rem;
+  }
+
+  .menu li .summer-session-link {
+    min-width: 0;
+    padding: 12px 14px 10px 38px;
+  }
+
+  .menu li .summer-session-title {
+    font-size: 1.1rem;
+  }
+}
+
 /* Hero */
 .hero‑section {
   position: relative;
