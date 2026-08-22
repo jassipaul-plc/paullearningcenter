@@ -1,0 +1,48 @@
+---
+import { site } from '../data/site.js';
+---
+<div class="announce" id="announce" hidden>
+  <div class="container announce-inner">
+    <a href={site.session.landingPath}>
+      <strong>Admissions open</strong> — {site.session.label} · Enroll now →
+    </a>
+    <button type="button" id="announce-close" aria-label="Dismiss announcement">×</button>
+  </div>
+</div>
+
+<style>
+  .announce { background: var(--teal-deep); }
+  .announce-inner {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding-bottom: 0.45rem;
+    padding-top: 0.45rem;
+    position: relative;
+  }
+  .announce a { color: #ffffff; font-size: 0.95rem; text-align: center; text-decoration: none; }
+  .announce a:hover { text-decoration: underline; }
+  .announce button {
+    background: none;
+    border: 0;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0.2rem 0.4rem;
+    position: absolute;
+    right: 0.5rem;
+  }
+  .announce button:hover { color: #ffffff; }
+</style>
+
+<script>
+  const bar = document.getElementById('announce');
+  const KEY = 'plc_announce_dismissed_2026_27';
+  if (bar && !localStorage.getItem(KEY)) bar.hidden = false;
+  document.getElementById('announce-close')?.addEventListener('click', () => {
+    bar.hidden = true;
+    localStorage.setItem(KEY, '1');
+  });
+</script>

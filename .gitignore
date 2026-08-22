@@ -1,5 +1,15 @@
+# Dependencies & build output
+node_modules/
+dist/
+.astro/
+
 # Local Netlify folder
 .netlify
+
+# Environment
 .env
 .env.local
 .env.production
+
+# OS cruft
+.DS_Store

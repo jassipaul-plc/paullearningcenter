@@ -1,0 +1,78 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CTABand from '../components/CTABand.astro';
+import TalkToUs from '../components/TalkToUs.astro';
+import { programs } from '../data/programs.js';
+import { site } from '../data/site.js';
+---
+<Base
+  title="Programs"
+  description="Math, English & ELA, Science, and Test Prep programs at Paul Learning Center — elementary foundations through AP Calculus, SAT and ACT."
+  mobileCta={true}
+>
+  <PageHeader
+    eyebrow="Programs"
+    title="Our Programs"
+    lede="Six structured tracks covering Math, English, Science, and Test Prep — each taught with personalized attention and aligned to your child's school curriculum. Schedules and batches are published on the enrollment page."
+  />
+
+  <section class="section">
+    <div class="container programs-list">
+      {programs.map((p, i) => (
+        <article class={`split program-row ${i % 2 === 1 ? 'flip' : ''}`} id={p.id}>
+          {p.image ? (
+            <div class="media"><img src={p.image} alt={`${p.title} program`} loading="lazy" /></div>
+          ) : (
+            <div class="media placeholder" aria-hidden="true"><span>{p.title.charAt(0)}</span></div>
+          )}
+          <div>
+            <span class="pill">{p.gradeBand}</span>
+            <h2>{p.title}</h2>
+            <p class="muted">{p.blurb}</p>
+            <p>{p.detail}</p>
+            <p class="audience"><strong>Good for:</strong> {p.audience}</p>
+            <h3 class="courses-head">Courses</h3>
+            <ul class="course-list">
+              {p.courses.map((c) => <li>{c}</li>)}
+            </ul>
+            <p style="margin-top:1.4rem">
+              <a class="btn btn-enroll" href={site.session.landingPath}>View schedule &amp; enroll</a>
+            </p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <TalkToUs
+    title="Not sure which track fits?"
+    text="Tell us your child's grade and current school course — we'll recommend the right program and batch."
+  />
+
+  <CTABand
+    title="Ready to pick a course?"
+    text="See the 2026-27 schedule and enroll in minutes."
+  />
+</Base>
+
+<style>
+  .programs-list { display: flex; flex-direction: column; gap: 4.5rem; }
+  .program-row .media.placeholder {
+    align-items: center;
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(150deg, var(--teal) 0%, var(--teal-deep) 100%);
+    display: flex;
+    justify-content: center;
+  }
+  .program-row .media.placeholder span {
+    color: rgba(255, 255, 255, 0.9);
+    font-family: var(--font-display);
+    font-size: 5rem;
+    font-weight: 700;
+  }
+  .program-row .media.placeholder::after { content: none; }
+  .program-row h2 { margin-bottom: 0.3rem; margin-top: 0.6rem; }
+  .courses-head { font-size: 1.05rem; margin: 1.2rem 0 0.2rem; }
+  .audience { color: var(--muted); }
+</style>

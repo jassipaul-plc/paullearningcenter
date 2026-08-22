@@ -1,0 +1,35 @@
+---
+import { site } from '../data/site.js';
+const { program } = Astro.props;
+const initial = program.title.charAt(0);
+---
+<article class="card program">
+  {program.image ? (
+    <div class="card-media">
+      <img src={program.image} alt={`${program.title} program`} loading="lazy" width="600" height="400" />
+    </div>
+  ) : (
+    <div class="card-media placeholder" aria-hidden="true"><span>{initial}</span></div>
+  )}
+  <div class="card-body">
+    <span class="pill">{program.gradeBand}</span>
+    <h3>{program.title}</h3>
+    <p class="muted blurb">{program.blurb}</p>
+    <ul class="course-list">
+      {program.courses.map((c) => <li>{c}</li>)}
+    </ul>
+    <a class="schedule-link" href={site.session.landingPath}>View schedule &amp; enroll →</a>
+  </div>
+</article>
+
+<style>
+  .program h3 { margin: 0.7rem 0 0.2rem; }
+  .blurb { font-size: 0.97rem; margin-top: 0; }
+  .schedule-link {
+    display: inline-block;
+    font-weight: 700;
+    margin-top: 1rem;
+    text-decoration: none;
+  }
+  .schedule-link:hover { text-decoration: underline; }
+</style>

@@ -1,0 +1,154 @@
+---
+import Base from '../layouts/Base.astro';
+import ProgramCard from '../components/ProgramCard.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+import CTABand from '../components/CTABand.astro';
+import TalkToUs from '../components/TalkToUs.astro';
+import { site } from '../data/site.js';
+import { programs } from '../data/programs.js';
+import { testimonials } from '../data/testimonials.js';
+
+const featured = programs.slice(0, 3);
+const quotes = testimonials.slice(0, 3);
+
+const orgSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: site.name,
+  url: site.url,
+  email: site.email,
+  address: { '@type': 'PostalAddress', streetAddress: '507 E Bernadette Terrace', addressLocality: 'Mountain House', addressRegion: 'CA', addressCountry: 'US' },
+  sameAs: [site.facebook],
+});
+---
+<Base
+  title="home"
+  description="Paul Learning Center offers personalized Math and ELA tutoring in Mountain House, CA — from elementary foundations to AP Calculus. Enroll for School Session 2026-27."
+>
+  <script type="application/ld+json" set:html={orgSchema} is:inline />
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"><img src="/images/classroom.jpg" alt="" fetchpriority="high" /></div>
+    <div class="container hero-inner">
+      <span class="eyebrow" style="color:#7fd6c8">Math &amp; ELA · Elementary to AP Calculus</span>
+      <h1>Inspiring Young Minds, One Student at a Time</h1>
+      <p class="sub">
+        Personalized instruction from certified educators — building confidence,
+        strong fundamentals, and top results in Math and English.
+      </p>
+      <div class="actions">
+        <a class="btn btn-enroll btn-lg" href={site.session.landingPath}>Enroll for 2026-27</a>
+        <a class="btn btn-ghost btn-lg" href="/programs/">Explore programs</a>
+      </div>
+      <div class="trust-strip">
+        <div class="item"><strong>Grades 3–12</strong> plus AP &amp; college level</div>
+        <div class="item"><strong>Math &amp; ELA</strong> certified educators</div>
+        <div class="item"><strong>Loved by parents</strong> on Facebook reviews</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programs -->
+  <section class="section" id="programs">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Programs</span>
+        <h2>Find the Right Program for Your Child</h2>
+        <p>Structured tracks for every grade band — each taught with individual attention, aligned to what your child faces at school.</p>
+      </div>
+      <div class="card-grid">
+        {featured.map((p) => <ProgramCard program={p} />)}
+      </div>
+      <p class="text-center mt-2">
+        <a class="btn btn-ghost" href="/programs/">See all programs — ELA, Science &amp; Test Prep</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Why PLC -->
+  <section class="section band">
+    <div class="container split">
+      <div class="media"><img src="/images/teacher-whiteboard.jpg" alt="A teacher explaining a concept at the whiteboard" loading="lazy" /></div>
+      <div>
+        <span class="eyebrow">Why Paul Learning Center</span>
+        <h2>Teaching That Actually Sticks</h2>
+        <p class="muted">
+          Every child learns differently — so we teach differently for every
+          child. Concepts are explained as many ways as it takes until they
+          truly click, and lessons stay aligned with what students face in
+          class and on exams.
+        </p>
+        <ul>
+          <li><strong>Personalized instruction</strong> — your child gets time and attention, not just a seat.</li>
+          <li><strong>Certified educators</strong> — experienced teachers focused on mastery, not memorization.</li>
+          <li><strong>Proven progress</strong> — parents see the difference on report cards, semester after semester.</li>
+        </ul>
+        <p><a class="btn btn-primary" href="/results/">See our results</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instructor -->
+  <section class="section">
+    <div class="container split flip">
+      <div class="media portrait"><img src="/images/avneet-paul.jpg" alt="Mrs. Avneet Paul" loading="lazy" /></div>
+      <div>
+        <span class="eyebrow">Your Instructor</span>
+        <h2>Meet Mrs. Avneet Paul</h2>
+        <p class="muted">
+          Classes are led by Mrs. Avneet Paul, whose teaching parents and
+          students describe the same way again and again: patient, thorough,
+          and genuinely invested. From elementary foundations to AP Calculus
+          and college-level math, her method is simple — explain it as many
+          ways as it takes, and never move on until it makes sense.
+        </p>
+        <blockquote class="pull-quote">
+          “She really cares about her students and takes time to make sure they
+          fully understand concepts.”
+          <cite>— Yaretzi Castellanos, student</cite>
+        </blockquote>
+        <p><a class="btn btn-primary" href="/about/">More about our team</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section band" id="testimonials">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Testimonials</span>
+        <h2>What Parents &amp; Students Say</h2>
+        <p>Real reviews from our <a href={site.facebookReviews} target="_blank" rel="noopener">Facebook page</a> — families who have been with us for years.</p>
+      </div>
+      <div class="card-grid">
+        {quotes.map((t) => <TestimonialCard t={t} />)}
+      </div>
+      <p class="text-center mt-2">
+        <a class="btn btn-ghost" href="/results/">More reviews &amp; results</a>
+      </p>
+    </div>
+  </section>
+
+  <TalkToUs />
+
+  <CTABand />
+</Base>
+
+<style>
+  /* Instructor portrait: real photo (cropped from PLC's published results
+     flyer) — portrait ratio, centered, instead of the wide media crop */
+  .split .media.portrait { justify-self: center; max-width: 320px; width: 100%; }
+  .split .media.portrait img { aspect-ratio: 3 / 4; }
+
+  .pull-quote {
+    border-left: 3px solid var(--teal);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    margin: 1.5rem 0;
+    padding: 0.3rem 0 0.3rem 1.2rem;
+  }
+  .pull-quote cite { color: var(--muted); display: block; font-family: var(--font-body); font-size: 1rem; font-style: normal; margin-top: 0.5rem; }
+  ul li { margin: 0.55rem 0; }
+</style>

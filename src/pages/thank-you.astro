@@ -1,0 +1,29 @@
+---
+// Conversion page: landing here fires the 'lead_complete' event via the
+// marketing kit (thankYouPath in marketing.config.js). Use this URL as the
+// conversion destination in Google Ads / Meta.
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.js';
+---
+<Base
+  title="Thank You"
+  description="Thanks for contacting Paul Learning Center — we'll get back to you within one business day."
+  showAnnouncement={false}
+>
+  <section class="section">
+    <div class="container narrow text-center">
+      <span class="eyebrow">Message Sent</span>
+      <h1>Thank you!</h1>
+      <p class="muted">
+        We've received your message and will reply within one business day.
+        Meanwhile, feel free to browse the courses enrolling now for
+        {site.session.label}.
+      </p>
+      <p class="mt-2">
+        <a class="btn btn-enroll btn-lg" href={site.otute.courses} target="_blank" rel="noopener">Browse courses</a>
+        &nbsp;
+        <a class="btn btn-ghost btn-lg" href="/">Back to home</a>
+      </p>
+    </div>
+  </section>
+</Base>

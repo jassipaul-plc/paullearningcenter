@@ -1,0 +1,148 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+import CTABand from '../components/CTABand.astro';
+import TalkToUs from '../components/TalkToUs.astro';
+import { testimonials } from '../data/testimonials.js';
+import { site } from '../data/site.js';
+import { resultSessions, resultStats } from '../data/results.js';
+
+const stats = resultStats();
+---
+<Base
+  title="Results & Reviews"
+  description="Real results from Paul Learning Center students — perfect scores and 90%+ finishes in high school finals from Math 1 to AP Calculus, plus parent reviews."
+>
+  <PageHeader
+    eyebrow="Results"
+    title="Results & Reviews"
+    lede="We measure ourselves the same way parents do: report cards and word of mouth. Every name below comes from our published semester results — and every review is public on Facebook."
+  />
+
+  <!-- Aggregate stats — computed from the published results data -->
+  <section class="section tight">
+    <div class="container">
+      <div class="stat-grid">
+        <div class="stat"><div class="num">{stats.perfect}</div><div class="lbl">Perfect scores</div></div>
+        <div class="stat"><div class="num">{stats.ninety}</div><div class="lbl">Students at 90%+</div></div>
+        <div class="stat"><div class="num">{stats.eighty}</div><div class="lbl">Students at 80%+</div></div>
+        <div class="stat"><div class="num">{stats.sessions}</div><div class="lbl">Semesters published</div></div>
+      </div>
+      <p class="text-center muted stat-note">Across our three most recent published high school finals results.</p>
+    </div>
+  </section>
+
+  <!-- Per-semester honor rolls -->
+  <section class="section band">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Semester Finals</span>
+        <h2>Honor Roll by Semester</h2>
+        <p>From Math 1 through AP Calculus — the students behind the numbers.</p>
+      </div>
+
+      <div class="sessions">
+        {resultSessions.map((s) => (
+          <article class="card session" id={s.id}>
+            <header class="session-head">
+              <h3>{s.title}</h3>
+              <a class="result-zoom" href={s.flyer} target="_blank" rel="noopener">View original announcement →</a>
+            </header>
+
+            <div class="perfect">
+              <span class="perfect-label">{s.perfect.label}</span>
+              <div class="chips">
+                {s.perfect.students.map((n) => <span class="chip">{n}</span>)}
+              </div>
+            </div>
+
+            <div class="tiers">
+              {s.tiers.map((tier) => (
+                <div class="tier">
+                  <h4><span class="pill">{tier.label}</span></h4>
+                  {tier.groups.map((g) => (
+                    <p class="group">
+                      <strong>{g.course}:</strong>
+                      <span class="names">{g.students.join(', ')}</span>
+                    </p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Reviews</span>
+        <h2>What Families Tell Us</h2>
+        <p>All reviews are public on our <a href={site.facebookReviews} target="_blank" rel="noopener">Facebook page</a> — read them at the source.</p>
+      </div>
+      <div class="card-grid">
+        {testimonials.map((t) => <TestimonialCard t={t} />)}
+      </div>
+    </div>
+  </section>
+
+  <TalkToUs
+    title="Want results like these?"
+    text="Message us about your child's grade and goals — we'll tell you honestly what progress to expect and which program fits."
+  />
+
+  <CTABand
+    title="Your child could be next"
+    text="Join the families seeing real progress — enroll for School Session 2026-27."
+  />
+</Base>
+
+<style>
+  .stat-note { font-size: 0.95rem; margin-top: 1.2rem; }
+  .sessions { display: flex; flex-direction: column; gap: 2.5rem; }
+  .session { padding: 2rem 2.2rem 2.2rem; }
+  .session-head {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+  }
+  .session-head h3 { margin: 0; }
+
+  .perfect {
+    background: linear-gradient(120deg, var(--teal-deep), var(--teal-ink));
+    border-radius: var(--radius);
+    margin: 1.3rem 0 1.6rem;
+    padding: 1.2rem 1.5rem 1.4rem;
+  }
+  .perfect-label {
+    color: #ffe9a8;
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.7rem;
+    text-transform: uppercase;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.3rem 0.9rem;
+  }
+
+  .tiers { display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 780px) { .tiers { grid-template-columns: 1fr; } }
+  .tier h4 { margin: 0 0 0.8rem; }
+  .group { font-size: 1rem; margin: 0.55rem 0; }
+  .group strong { color: var(--teal-deep); }
+  .names { color: var(--muted); }
+</style>

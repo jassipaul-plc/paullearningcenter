@@ -1,0 +1,152 @@
+---
+// Enrollment landing page — the destination for every enroll CTA on the
+// site AND for all ad campaigns (message match: ad copy should echo this
+// page's headline). The big CTAs here go outbound to Otute and are
+// automatically tracked + decorated by the marketing kit.
+import Base from '../layouts/Base.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+import TalkToUs from '../components/TalkToUs.astro';
+import { site } from '../data/site.js';
+import { programs } from '../data/programs.js';
+import { testimonials } from '../data/testimonials.js';
+
+const quotes = testimonials.slice(0, 2);
+---
+<Base
+  title="School Session 2026-27 — Enroll Now"
+  description="Admissions are open for Paul Learning Center's School Session 2026-27. Math, ELA, Science, and Test Prep — small groups, certified educators. Enroll today."
+  showAnnouncement={false}
+  mobileCta={true}
+>
+  <section class="hero">
+    <div class="hero-bg"><img src="/images/classroom.jpg" alt="" fetchpriority="high" /></div>
+    <div class="container hero-inner">
+      <span class="eyebrow" style="color:#7fd6c8">Admissions Open</span>
+      <h1>School Session 2026-27</h1>
+      <p class="sub">
+        Seats are limited for the new school session. Pick a course, choose a
+        batch, and enroll online in minutes.
+        <!-- TODO: add real session start date when confirmed -->
+      </p>
+      <div class="actions">
+        <a class="btn btn-enroll btn-lg" href={site.otute.courses} target="_blank" rel="noopener">
+          Enroll now — Browse courses
+        </a>
+        <a class="btn btn-ghost btn-lg" href="/contact/">Ask a question</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What's on offer -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">This Session</span>
+        <h2>Programs Enrolling Now</h2>
+      </div>
+      <div class="card-grid">
+        {programs.map((p) => (
+          <div class="card">
+            <div class="card-body">
+              <span class="pill">{p.gradeBand}</span>
+              <h3 style="margin-top:0.6rem">{p.title}</h3>
+              <ul class="course-list">
+                {p.courses.map((c) => <li>{c}</li>)}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How enrollment works -->
+  <section class="section band">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">How It Works</span>
+        <h2>Enroll in Three Steps</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <h3>Browse courses</h3>
+          <p>Open our course catalog on Otute — our online enrollment platform — and find your child's course.</p>
+        </div>
+        <div class="step">
+          <h3>Pick a batch</h3>
+          <p>Choose the schedule that fits your week and check available seats.</p>
+        </div>
+        <div class="step">
+          <h3>Enroll online</h3>
+          <p>Create an account and complete enrollment in minutes. We'll take it from there.</p>
+        </div>
+      </div>
+      <p class="text-center mt-2">
+        <a class="btn btn-enroll btn-lg" href={site.otute.courses} target="_blank" rel="noopener">
+          Start enrollment
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Social proof -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Parents Say</span>
+        <h2>Trusted by Families Like Yours</h2>
+      </div>
+      <div class="card-grid">
+        {quotes.map((t) => <TestimonialCard t={t} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section band">
+    <div class="container narrow">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>Common Questions</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Who teaches the classes?</summary>
+          <p>Certified, experienced educators led by Mrs. Avneet Paul — see what parents say on our <a href="/results/">results page</a>.</p>
+        </details>
+        <details>
+          <summary>What subjects and grades do you cover?</summary>
+          <p>Math from Grade 3 foundations through AP Calculus AB/BC, English &amp; ELA, core Sciences, and SAT/ACT test prep.</p>
+        </details>
+        <details>
+          <summary>How do I enroll?</summary>
+          <p>Click any Enroll button — you'll browse the course catalog on Otute, our enrollment platform, pick a batch, and complete enrollment online.</p>
+        </details>
+        <details>
+          <summary>What if I'm not sure which course fits my child?</summary>
+          <p><a href="/contact/">Contact us</a> — tell us the grade and school course, and we'll recommend the right track.</p>
+        </details>
+        <details>
+          <summary>Where is the center located?</summary>
+          <p>{site.address}. Reach us anytime at <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <TalkToUs
+    title="Questions before enrolling?"
+    text="Message us on Facebook Messenger — tell us your child's grade and school course, and we'll recommend the right batch."
+  />
+
+  <!-- Final CTA -->
+  <section class="cta-band">
+    <div class="container inner">
+      <div>
+        <h2>Don't wait — batches fill up</h2>
+        <p>Enroll for School Session 2026-27 today.</p>
+      </div>
+      <a class="btn btn-enroll btn-lg" href={site.otute.courses} target="_blank" rel="noopener">Enroll now</a>
+    </div>
+  </section>
+</Base>

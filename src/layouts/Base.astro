@@ -1,0 +1,66 @@
+---
+import { site } from '../data/site.js';
+import AnnouncementBar from '../components/AnnouncementBar.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
+import '../styles/global.css';
+
+const {
+  title,
+  description,
+  showAnnouncement = true,
+  mobileCta = false,
+  ogImage = '/images/classroom.jpg',
+} = Astro.props;
+const fullTitle = title === 'home'
+  ? `${site.name} — Math & ELA Tutoring, Elementary to AP Calculus`
+  : `${title} | ${site.name}`;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(ogImage, site.url).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap"
+    />
+
+    <!-- Marketing kit: config first, then the kit. IDs live in marketing.config.js -->
+    <script src="/js/marketing.config.js" is:inline></script>
+    <script src="/js/marketing-kit.js" defer is:inline></script>
+  </head>
+  <body class={mobileCta ? 'has-mobile-cta' : undefined}>
+    {showAnnouncement && <AnnouncementBar />}
+    <Nav />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <ChatWidget />
+    {mobileCta && (
+      <div class="mobile-cta">
+        <a class="btn btn-enroll" href={site.otute.courses} target="_blank" rel="noopener">
+          Enroll now — {site.session.label}
+        </a>
+      </div>
+    )}
+  </body>
+</html>

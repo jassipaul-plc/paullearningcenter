@@ -1,0 +1,16 @@
+---
+const { t } = Astro.props;
+---
+<article class="card testimonial">
+  <div class="card-body testimonial">
+    <blockquote>“{t.quote}”</blockquote>
+    <cite>{t.author}</cite>
+    <p class="src">
+      {t.role} · <a href={t.link} target="_blank" rel="noopener">Facebook review</a>
+    </p>
+  </div>
+</article>
+
+<style>
+  .src { margin: 0.15rem 0 0; }
+</style>

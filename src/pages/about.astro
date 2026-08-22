@@ -1,0 +1,150 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CTABand from '../components/CTABand.astro';
+import TalkToUs from '../components/TalkToUs.astro';
+import { site } from '../data/site.js';
+---
+<Base
+  title="About Us"
+  description="Paul Learning Center makes education personalized, joyful, and effective — led by Mrs. Avneet Paul and a team of certified educators in Mountain House, CA."
+>
+  <PageHeader
+    eyebrow="About"
+    title="About Paul Learning Center"
+    lede="A learning center built on a simple belief: every child can excel with the right support, the right explanation, and a teacher who refuses to give up on them."
+  />
+
+  <section class="section">
+    <div class="container split">
+      <div class="media"><img src="/images/learning-blocks.jpg" alt="Books and learning blocks on a classroom desk" loading="lazy" /></div>
+      <div>
+        <span class="eyebrow">Our Story</span>
+        <h2>Personalized, Joyful, Effective</h2>
+        <p>
+          Paul Learning Center was founded with a mission to make education
+          <strong>personalized, joyful, and effective</strong>. We believe every
+          child deserves the chance to shine with the right support and guidance
+          — and that the difference between struggling and excelling is almost
+          always how a concept is explained, not the child's ability.
+        </p>
+        <p>
+          Families come to us for Math and ELA help, and stay for years — because
+          concepts finally make sense, grades follow, and students start walking
+          into class confident instead of anxious.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instructor -->
+  <section class="section band">
+    <div class="container narrow">
+      <div class="section-head">
+        <span class="eyebrow">Your Instructor</span>
+        <h2>Mrs. Avneet Paul</h2>
+      </div>
+      <figure class="instructor-photo">
+        <img src="/images/avneet-paul.jpg" alt="Mrs. Avneet Paul" width="222" height="282" loading="lazy" />
+        <figcaption>Mrs. Avneet Paul</figcaption>
+      </figure>
+      <p>
+        Every program at Paul Learning Center is led by <strong>Mrs. Avneet
+        Paul</strong>, an educator whose range runs from elementary math
+        foundations all the way to AP Calculus and college-level calculus.
+        Ask the families she works with, and the same words keep coming back:
+        <em>patient, responsible, caring, thorough</em>.
+      </p>
+      <p>
+        Her method is what parents notice first. Rather than repeating one
+        explanation louder, she explains each concept <strong>as many different
+        ways as it takes</strong> — and doesn't move forward until it genuinely
+        clicks. Students who "hated math" describe finally enjoying the
+        techniques they're learning; parents watch the progress land on report
+        cards semester after semester.
+      </p>
+      <p>
+        She doesn't work alone: an excellent team of certified educators
+        supports students across Math, English &amp; ELA, and the sciences, so
+        every learner gets attention matched to their level — from a third
+        grader building number sense to a senior preparing for the AP exam.
+      </p>
+      <!-- Photo cropped from PLC's published results flyer; replace with a
+           professional headshot when available. TODO: add credentials and
+           years-of-experience figures once provided — do not publish
+           estimates. -->
+
+      <div class="quote-cards">
+        <blockquote>
+          “She helped me in college and high school math and really cares about
+          her students… explains concepts in many different ways!”
+          <cite>— Yaretzi Castellanos, student · <a href={site.facebookReviews} target="_blank" rel="noopener">Facebook review</a></cite>
+        </blockquote>
+        <blockquote>
+          “Mrs. Paul is a very responsible teacher and her team is also
+          excellent. We highly recommend this place.”
+          <cite>— Joanna Tan, parent · <a href={site.facebookReviews} target="_blank" rel="noopener">Facebook review</a></cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- How we teach -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Our Approach</span>
+        <h2>How We Teach</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <h3>Meet the student where they are</h3>
+          <p>We start from what your child actually knows — closing gaps before building ahead, so nothing is left shaky underneath.</p>
+        </div>
+        <div class="step">
+          <h3>Teach the why, not just the how</h3>
+          <p>Concept-first instruction, explained as many ways as it takes. Understanding survives the test; memorization doesn't.</p>
+        </div>
+        <div class="step">
+          <h3>Stay aligned with school</h3>
+          <p>Lessons map to your child's classroom and exams — support they feel on the very next quiz, not in the abstract.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <TalkToUs
+    title="Come meet us"
+    text="Have questions about our approach or which teacher fits your child? Message us — we're happy to talk it through."
+  />
+
+  <CTABand
+    title="Come learn with us"
+    text="Enrollment for School Session 2026-27 is open now."
+  />
+</Base>
+
+<style>
+  .instructor-photo { margin: 0 auto 2rem; max-width: 250px; text-align: center; }
+  .instructor-photo img {
+    border: 4px solid var(--paper);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+  }
+  .instructor-photo figcaption { color: var(--muted); font-weight: 700; margin-top: 0.6rem; }
+
+  .quote-cards { display: grid; gap: 1.25rem; grid-template-columns: 1fr 1fr; margin-top: 2.2rem; }
+  @media (max-width: 720px) { .quote-cards { grid-template-columns: 1fr; } }
+  .quote-cards blockquote {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin: 0;
+    padding: 1.4rem 1.5rem;
+  }
+  .quote-cards cite { color: var(--muted); display: block; font-family: var(--font-body); font-size: 0.95rem; font-style: normal; margin-top: 0.8rem; }
+</style>

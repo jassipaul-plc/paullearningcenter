@@ -1,0 +1,42 @@
+---
+// TODO: review before launch — kept intentionally short and factual.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../data/site.js';
+---
+<Base
+  title="Terms of Use"
+  description="Terms of use for the Paul Learning Center website."
+  showAnnouncement={false}
+>
+  <PageHeader eyebrow="Legal" title="Terms of Use" lede="Effective date: August 22, 2026" />
+  <section class="section">
+    <div class="container narrow">
+      <p>
+        This website is operated by {site.name}. By using it, you agree to these
+        terms.
+      </p>
+      <h2>Use of the site</h2>
+      <p>
+        The site provides information about our programs and links to enrollment
+        on Otute. Content is provided for general information; program details,
+        schedules, and pricing shown on the enrollment platform are authoritative.
+      </p>
+      <h2>Enrollment</h2>
+      <p>
+        Enrollment, payment, and related terms are handled on
+        <a href="https://otute.com" rel="noopener">otute.com</a> and governed by the
+        terms presented there at enrollment time.
+      </p>
+      <h2>Intellectual property</h2>
+      <p>
+        Site content, including the Paul Learning Center name and logo, may not be
+        reproduced without permission.
+      </p>
+      <h2>Contact</h2>
+      <p>
+        Questions? Email <a href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+    </div>
+  </section>
+</Base>

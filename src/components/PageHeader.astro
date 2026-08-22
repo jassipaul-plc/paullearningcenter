@@ -1,0 +1,23 @@
+---
+// Uniform page header used by every inner page — one width, one rhythm,
+// so pages never drift apart visually.
+const { eyebrow, title, lede } = Astro.props;
+---
+<section class="page-head">
+  <div class="container">
+    {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+    <h1>{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+  </div>
+</section>
+
+<style>
+  .page-head {
+    background: var(--paper-soft);
+    border-bottom: 1px solid var(--line);
+    padding: 3.5rem 0 3rem;
+    text-align: center;
+  }
+  .page-head h1 { margin-bottom: 0.3rem; }
+  .page-head .lede { margin: 0.5rem auto 0; max-width: 46rem; }
+</style>

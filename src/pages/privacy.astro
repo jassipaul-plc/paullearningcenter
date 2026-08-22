@@ -1,0 +1,70 @@
+---
+// Draft policy covering what the site actually does (analytics, ad pixels,
+// attribution, outbound decoration). TODO: have this reviewed before
+// launching paid campaigns.
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../data/site.js';
+---
+<Base
+  title="Privacy Policy"
+  description="How Paul Learning Center collects and uses information on this website."
+  showAnnouncement={false}
+>
+  <PageHeader eyebrow="Legal" title="Privacy Policy" lede="Effective date: August 22, 2026" />
+  <section class="section">
+    <div class="container narrow">
+
+      <h2>Information we collect</h2>
+      <p>
+        When you use this website, we collect information in two ways:
+      </p>
+      <ul>
+        <li>
+          <strong>Information you provide</strong> — such as your name, email
+          address, and message when you use our contact form. We use it solely to
+          respond to your inquiry.
+        </li>
+        <li>
+          <strong>Usage and advertising data</strong> — with your consent settings,
+          we use cookies and similar technologies (Google Analytics, Google Ads,
+          and Meta Pixel) to understand how the site is used and to measure the
+          effectiveness of our advertising. This includes campaign parameters
+          (such as UTM tags and click identifiers) and an anonymous visitor
+          identifier stored in your browser.
+        </li>
+      </ul>
+
+      <h2>Enrollment on Otute</h2>
+      <p>
+        Enrollment is completed on <a href="https://otute.com" rel="noopener">otute.com</a>,
+        our online enrollment platform. When you follow an enrollment link from
+        this site, the link includes referral parameters (including the anonymous
+        visitor identifier) so we can understand which of our pages and campaigns
+        lead to enrollments. Otute's own privacy policy governs the information
+        you provide there.
+      </p>
+
+      <h2>Your choices</h2>
+      <p>
+        You can decline measurement cookies using the banner on this site, and
+        clear previously stored data by clearing your browser's site data. Ad
+        platforms provide their own opt-out controls (Google Ads Settings, Meta Ad
+        Preferences).
+      </p>
+
+      <h2>Data sharing and retention</h2>
+      <p>
+        We do not sell personal information. Contact form messages are delivered
+        to our email inbox and retained only as long as needed to help you.
+        Analytics data is retained per the settings of the respective platforms.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy? Email us at
+        <a href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+    </div>
+  </section>
+</Base>

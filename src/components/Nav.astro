@@ -1,0 +1,93 @@
+---
+import { site } from '../data/site.js';
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/programs/', label: 'Programs' },
+  { href: '/results/', label: 'Results' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
+];
+const current = Astro.url.pathname;
+---
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="/">
+      <img src="/images/logo.png" alt={`${site.name} logo`} width="150" height="114" />
+    </a>
+
+    <nav class="links" id="nav-links" aria-label="Main navigation">
+      {links.map((l) => (
+        <a href={l.href} aria-current={current === l.href ? 'page' : undefined}>{l.label}</a>
+      ))}
+      <a class="btn btn-enroll nav-cta" href={site.session.landingPath}>Enroll for 2026-27</a>
+    </nav>
+
+    <button class="burger" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .nav {
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    align-items: center;
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    padding-bottom: 0.6rem;
+    padding-top: 0.6rem;
+  }
+  .brand img { height: 78px; width: auto; }
+  .links { align-items: center; display: flex; gap: 1.8rem; }
+  .links a {
+    color: var(--ink);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .links a:hover { color: var(--teal-ink); }
+  .links a[aria-current='page'] { color: var(--teal-ink); }
+  .links .nav-cta { color: #ffffff; font-size: 1rem; padding: 0.8rem 1.5rem; }
+  .burger { background: none; border: 0; cursor: pointer; display: none; padding: 0.4rem; }
+  .burger span {
+    background: var(--ink);
+    border-radius: 2px;
+    display: block;
+    height: 2.5px;
+    margin: 5px 0;
+    width: 24px;
+  }
+  @media (max-width: 860px) {
+    .burger { display: block; }
+    .links {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      box-shadow: var(--shadow-md);
+      display: none;
+      flex-direction: column;
+      gap: 1.1rem;
+      left: 0;
+      padding: 1.4rem 1.25rem 1.6rem;
+      position: absolute;
+      right: 0;
+      top: 100%;
+    }
+    .links.open { display: flex; }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const menu = document.getElementById('nav-links');
+  toggle?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+</script>

@@ -1,0 +1,18 @@
+---
+import { site } from '../data/site.js';
+const {
+  title = 'Seats are limited for 2026-27',
+  text = 'Small groups fill quickly — secure your child’s spot for the new school session.',
+  label = 'Enroll for 2026-27',
+  href = site.session.landingPath,
+} = Astro.props;
+---
+<section class="cta-band">
+  <div class="container inner">
+    <div>
+      <h2>{title}</h2>
+      <p>{text}</p>
+    </div>
+    <a class="btn btn-enroll btn-lg" href={href}>{label}</a>
+  </div>
+</section>
