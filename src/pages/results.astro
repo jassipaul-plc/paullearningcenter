@@ -144,14 +144,16 @@ const honored = (s) =>
   /* Compact semester cards */
   .sessions { display: flex; flex-direction: column; gap: 1.8rem; }
   .session { padding: 1.8rem 2rem 1.6rem; }
-  .session-body { display: flex; gap: 2rem; }
+  /* Thumbnail centers against the full card so it doesn't leave a hole
+     under itself when the content column runs taller */
+  .session-body { align-items: center; display: flex; gap: 2.2rem; }
   .session-main { flex: 1; min-width: 0; }
   .session-main h3 { margin: 0 0 0.2rem; }
   .honored { font-size: 0.95rem; margin: 0 0 1.2rem; }
 
   /* Flyer thumbnail — the proof, aligned right */
   .flyer-thumb {
-    flex: 0 0 132px;
+    flex: 0 0 124px;
     text-decoration: none;
     text-align: center;
   }
@@ -167,14 +169,14 @@ const honored = (s) =>
   .flyer-cap {
     color: var(--teal-ink);
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    margin-top: 0.5rem;
+    margin-top: 0.45rem;
   }
   .flyer-thumb:hover .flyer-cap { text-decoration: underline; }
   @media (max-width: 640px) {
-    .session-body { flex-direction: column-reverse; }
-    .flyer-thumb { align-self: flex-start; flex: 0 0 auto; width: 120px; }
+    .session-body { align-items: stretch; flex-direction: column-reverse; gap: 1.4rem; }
+    .flyer-thumb { align-self: flex-start; flex: 0 0 auto; width: 116px; }
   }
 
   .perfect-strip {

@@ -36,10 +36,18 @@ const apPerfect = resultSessions[0].perfect; // 2024-25 Sem 2: AP Calc AB perfec
         <div class="l">Students scored 80%+</div>
       </div>
     </div>
-    <p class="perfect-line">
-      <span class="pill">AP Calculus AB · 2024-25</span>
-      <strong>Perfect Score 5</strong> — {apPerfect.students.join(' · ')}
-    </p>
+    <div class="perfect-card">
+      <div class="score-shout">
+        <span class="score">{apPerfect.score}</span>
+        <span class="score-meta">
+          <span class="score-word">Perfect Score</span>
+          <span class="score-subject">{apPerfect.subject} · 2024-25</span>
+        </span>
+      </div>
+      <div class="chips">
+        {apPerfect.students.map((n) => <span class="chip">{n}</span>)}
+      </div>
+    </div>
     <p class="text-center see-all">
       <a href="/results/">See every student and semester →</a>
     </p>
@@ -66,16 +74,52 @@ const apPerfect = resultSessions[0].perfect; // 2024-25 Sem 2: AP Calc AB perfec
     line-height: 1;
   }
   .big-stat .l { color: var(--muted); font-size: 1.05rem; font-weight: 700; margin-top: 0.4rem; }
-  .perfect-line {
-    background: var(--mist);
-    border-radius: var(--radius);
-    margin: 2.4rem auto 0;
-    max-width: 100%;
-    padding: 0.8rem 1.5rem;
-    text-align: center;
-    width: fit-content;
+  /* The achievement, shouted: giant golden score on teal */
+  .perfect-card {
+    background: linear-gradient(120deg, var(--teal-deep), var(--teal-ink));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin: 2.6rem auto 0;
+    max-width: 44rem;
+    padding: 1.4rem 1.8rem 1.5rem;
   }
-  .perfect-line .pill { background: var(--teal-deep); color: #ffffff; margin-right: 0.6rem; }
-  .see-all { margin-top: 1.5rem; }
+  .score-shout {
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+  .score {
+    color: #ffd166;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  }
+  .score-meta { display: flex; flex-direction: column; gap: 0.15rem; }
+  .score-word {
+    color: #ffe9a8;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .score-subject { color: #ffffff; font-size: 1.1rem; font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+  .chip {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.3rem 0.9rem;
+  }
+  .see-all { margin-top: 1.6rem; }
   .see-all a { font-weight: 700; }
 </style>
