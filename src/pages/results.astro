@@ -16,57 +16,64 @@ const stats = resultStats();
 >
   <PageHeader
     eyebrow="Results"
-    title="Results & Reviews"
-    lede="We measure ourselves the same way parents do: report cards and word of mouth. Every name below comes from our published semester results — and every review is public on Facebook."
+    title="Published Student Results"
+    lede="Real outcomes from high school finals — three semesters, verified and public."
   />
 
-  <!-- Aggregate stats — computed from the published results data -->
-  <section class="section tight">
+  <!-- Big hero stats — aggregate proof -->
+  <section class="section">
     <div class="container">
-      <div class="stat-grid">
-        <div class="stat"><div class="num">{stats.perfect}</div><div class="lbl">Perfect scores</div></div>
-        <div class="stat"><div class="num">{stats.ninety}</div><div class="lbl">Students at 90%+</div></div>
-        <div class="stat"><div class="num">{stats.eighty}</div><div class="lbl">Students at 80%+</div></div>
-        <div class="stat"><div class="num">{stats.sessions}</div><div class="lbl">Semesters published</div></div>
+      <div class="big-stats hero">
+        <div class="big-stat">
+          <div class="n">{stats.perfect}</div>
+          <div class="l">Perfect scores</div>
+        </div>
+        <div class="big-stat">
+          <div class="n">{stats.ninety}</div>
+          <div class="l">Scored 90%+</div>
+        </div>
+        <div class="big-stat">
+          <div class="n">{stats.eighty}</div>
+          <div class="l">Scored 80%+</div>
+        </div>
       </div>
-      <p class="text-center muted stat-note">Across our three most recent published high school finals results.</p>
+      <p class="text-center stat-note">Across three published semesters of high school finals.</p>
     </div>
   </section>
 
-  <!-- Per-semester honor rolls -->
+  <!-- Per-semester highlights — compact, scannable -->
   <section class="section band">
     <div class="container">
       <div class="section-head">
-        <span class="eyebrow">Semester Finals</span>
-        <h2>Honor Roll by Semester</h2>
-        <p>From Math 1 through AP Calculus — the students behind the numbers.</p>
+        <span class="eyebrow">Semester by Semester</span>
+        <h2>The Achievements Behind the Numbers</h2>
       </div>
 
       <div class="sessions">
         {resultSessions.map((s) => (
-          <article class="card session" id={s.id}>
-            <header class="session-head">
-              <h3>{s.title}</h3>
-              <a class="result-zoom" href={s.flyer} target="_blank" rel="noopener">View original announcement →</a>
-            </header>
-
-            <div class="perfect">
-              <span class="perfect-label">{s.perfect.label}</span>
-              <div class="chips">
-                {s.perfect.students.map((n) => <span class="chip">{n}</span>)}
+          <article class="card session compact" id={s.id}>
+            <div class="session-grid">
+              <div>
+                <h3>{s.title}</h3>
+                <p class="text-small muted">From {s.perfect.label}</p>
               </div>
+              <a class="result-link" href={s.flyer} target="_blank" rel="noopener">View original flyer</a>
             </div>
 
-            <div class="tiers">
+            {s.perfect.students.length > 0 && (
+              <div class="perfect-strip">
+                <strong>{s.perfect.label}:</strong>
+                <div class="chips">
+                  {s.perfect.students.map((n) => <span class="chip">{n}</span>)}
+                </div>
+              </div>
+            )}
+
+            <div class="tier-counts">
               {s.tiers.map((tier) => (
-                <div class="tier">
-                  <h4><span class="pill">{tier.label}</span></h4>
-                  {tier.groups.map((g) => (
-                    <p class="group">
-                      <strong>{g.course}:</strong>
-                      <span class="names">{g.students.join(', ')}</span>
-                    </p>
-                  ))}
+                <div class="tier-item">
+                  <span class="count">{tier.groups.reduce((sum, g) => sum + g.students.length, 0)}</span>
+                  <span class="tier-name">{tier.label}</span>
                 </div>
               ))}
             </div>
@@ -101,48 +108,77 @@ const stats = resultStats();
 </Base>
 
 <style>
-  .stat-note { font-size: 0.95rem; margin-top: 1.2rem; }
-  .sessions { display: flex; flex-direction: column; gap: 2.5rem; }
-  .session { padding: 2rem 2.2rem 2.2rem; }
-  .session-head {
-    align-items: baseline;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    justify-content: space-between;
+  /* Big hero stats — same as ResultsShout but isolated to this page */
+  .big-stats {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0 auto;
+    max-width: 56rem;
+    text-align: center;
   }
-  .session-head h3 { margin: 0; }
+  @media (max-width: 640px) { .big-stats { gap: 1.75rem; grid-template-columns: 1fr; } }
+  .big-stat .n {
+    color: var(--teal-deep);
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 7vw, 4.8rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .big-stat .l { color: var(--muted); font-size: 1.05rem; font-weight: 700; margin-top: 0.4rem; }
 
-  .perfect {
+  .stat-note { font-size: 0.95rem; margin-top: 1.2rem; text-align: center; }
+
+  /* Compact semester cards — scan at a glance -->
+  .sessions { display: flex; flex-direction: column; gap: 1.8rem; }
+  .session.compact { padding: 1.6rem 1.8rem; }
+  .session-grid {
+    align-items: center;
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+  .session-grid h3 { margin: 0; }
+  .text-small { font-size: 0.9rem; }
+  .result-link { color: var(--teal-ink); font-weight: 700; text-decoration: none; white-space: nowrap; }
+  .result-link:hover { text-decoration: underline; }
+
+  .perfect-strip {
     background: linear-gradient(120deg, var(--teal-deep), var(--teal-ink));
     border-radius: var(--radius);
-    margin: 1.3rem 0 1.6rem;
-    padding: 1.2rem 1.5rem 1.4rem;
+    margin: 0 0 1.4rem;
+    padding: 0.9rem 1.2rem;
   }
-  .perfect-label {
+  .perfect-strip strong {
     color: #ffe9a8;
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.5rem;
     text-transform: uppercase;
   }
-  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
   .chip {
     background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 999px;
     color: #ffffff;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    padding: 0.3rem 0.9rem;
+    padding: 0.25rem 0.8rem;
   }
 
-  .tiers { display: grid; gap: 2rem; grid-template-columns: 1fr 1fr; }
-  @media (max-width: 780px) { .tiers { grid-template-columns: 1fr; } }
-  .tier h4 { margin: 0 0 0.8rem; }
-  .group { font-size: 1rem; margin: 0.55rem 0; }
-  .group strong { color: var(--teal-deep); }
-  .names { color: var(--muted); }
+  /* Tier summary — counts, not names -->
+  .tier-counts { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top: 0.8rem; }
+  .tier-item {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .tier-item .count { color: var(--teal-deep); font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; }
+  .tier-item .tier-name { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
 </style>
