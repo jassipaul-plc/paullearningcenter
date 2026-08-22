@@ -9,6 +9,8 @@ export const resultSessions = [
     flyer: '/images/result3.jpg',
     perfect: {
       label: 'Perfect Score 5 — AP Calculus AB',
+      score: '5',
+      subject: 'AP Calculus AB',
       students: ['Aaradhana', 'Alisha', 'Bryan', 'Dia'],
     },
     tiers: [
@@ -41,6 +43,8 @@ export const resultSessions = [
     flyer: '/images/result2.jpg',
     perfect: {
       label: 'Perfect Score 100%',
+      score: '100%',
+      subject: 'Semester Finals',
       students: ['Yogita — Math 3 Honors', 'Garry — ELA 9th'],
     },
     tiers: [
@@ -75,6 +79,8 @@ export const resultSessions = [
     flyer: '/images/result1.jpg',
     perfect: {
       label: 'Perfect Score 100%',
+      score: '100%',
+      subject: 'Semester Finals',
       students: ['Arvya — Math 1', 'Samarth — Math 2 H', 'Omar A — Math 2 H', 'Jasmine — Math 2 H', 'Aradhana — Math 3 H', 'Riya — Math 3 H', 'Bryan — Math 3 H'],
     },
     tiers: [
