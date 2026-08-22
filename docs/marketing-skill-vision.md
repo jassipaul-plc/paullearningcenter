@@ -23,7 +23,7 @@ Related requirement docs (Claude artifacts, private — share from the page menu
 
 Prerequisites (build these as normal project work first):
 
-- [ ] Phase 1 — PLC redesign shipped
+- [x] Phase 1 — PLC redesign shipped (live 2026-08-22, commit 5e51712; rollback tag `pre-revamp-2026-08-22`)
 - [ ] Phase 2 — marketing kit running on PLC (consent, GTM, GA4, Meta Pixel, attribution, outbound `enroll_click` conversions)
 - [ ] Phase 3 — Otute course integration + tracked redirects live
 - [ ] Phase 4 — relay deployed on Netlify (contact email via Resend; Otute postback receiver forwarding offline conversions)
