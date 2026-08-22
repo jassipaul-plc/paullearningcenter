@@ -6,6 +6,7 @@
 import Base from '../layouts/Base.astro';
 import TestimonialCard from '../components/TestimonialCard.astro';
 import TalkToUs from '../components/TalkToUs.astro';
+import ResultsShout from '../components/ResultsShout.astro';
 import { site } from '../data/site.js';
 import { programs } from '../data/programs.js';
 import { testimonials } from '../data/testimonials.js';
@@ -48,36 +49,7 @@ const apPerfect = resultSessions[0].perfect; // 2024-25 Sem 2: AP Calc AB perfec
   </section>
 
   <!-- Results shout: proof immediately after the promise -->
-  <section class="section shout">
-    <div class="container">
-      <div class="section-head">
-        <span class="eyebrow">Proven Results</span>
-        <h2>Our Students Don't Just Improve — They Top Their Classes</h2>
-        <p>Real outcomes from our last three published semesters of high school finals. Every number has names behind it.</p>
-      </div>
-      <div class="big-stats">
-        <div class="big-stat">
-          <div class="n">{stats.perfect}</div>
-          <div class="l">Perfect scores</div>
-        </div>
-        <div class="big-stat">
-          <div class="n">{stats.ninety}</div>
-          <div class="l">Students scored 90%+</div>
-        </div>
-        <div class="big-stat">
-          <div class="n">{stats.eighty}</div>
-          <div class="l">Students scored 80%+</div>
-        </div>
-      </div>
-      <p class="perfect-line">
-        <span class="pill">AP Calculus AB · 2024-25</span>
-        <strong>Perfect Score 5</strong> — {apPerfect.students.join(' · ')}
-      </p>
-      <p class="text-center see-all">
-        <a href="/results/">See every student and semester →</a>
-      </p>
-    </div>
-  </section>
+  <ResultsShout />
 
   <!-- What's on offer -->
   <section class="section band">

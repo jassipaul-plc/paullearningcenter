@@ -1,0 +1,81 @@
+---
+// Achievement proof block — big numbers, few words. Every figure is
+// computed from the transcribed results flyers (src/data/results.js),
+// so it can never drift from what PLC actually published.
+// Used on the homepage and the ads landing page.
+import { resultSessions, resultStats } from '../data/results.js';
+
+const {
+  eyebrow = 'Proven Results',
+  title = "Our Students Don't Just Improve — They Top Their Classes",
+  text = 'Real outcomes from our last three published semesters of high school finals. Every number has names behind it.',
+  band = false,
+} = Astro.props;
+
+const stats = resultStats();
+const apPerfect = resultSessions[0].perfect; // 2024-25 Sem 2: AP Calc AB perfect 5s
+---
+<section class={`section${band ? ' band' : ''}`}>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">{eyebrow}</span>
+      <h2>{title}</h2>
+      <p>{text}</p>
+    </div>
+    <div class="big-stats">
+      <div class="big-stat">
+        <div class="n">{stats.perfect}</div>
+        <div class="l">Perfect scores</div>
+      </div>
+      <div class="big-stat">
+        <div class="n">{stats.ninety}</div>
+        <div class="l">Students scored 90%+</div>
+      </div>
+      <div class="big-stat">
+        <div class="n">{stats.eighty}</div>
+        <div class="l">Students scored 80%+</div>
+      </div>
+    </div>
+    <p class="perfect-line">
+      <span class="pill">AP Calculus AB · 2024-25</span>
+      <strong>Perfect Score 5</strong> — {apPerfect.students.join(' · ')}
+    </p>
+    <p class="text-center see-all">
+      <a href="/results/">See every student and semester →</a>
+    </p>
+  </div>
+</section>
+
+<style>
+  /* Big numbers, few words — loud without clutter */
+  .big-stats {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0 auto;
+    max-width: 56rem;
+    text-align: center;
+  }
+  @media (max-width: 640px) { .big-stats { gap: 1.75rem; grid-template-columns: 1fr; } }
+  .big-stat .n {
+    color: var(--teal-deep);
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 7vw, 4.8rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .big-stat .l { color: var(--muted); font-size: 1.05rem; font-weight: 700; margin-top: 0.4rem; }
+  .perfect-line {
+    background: var(--mist);
+    border-radius: var(--radius);
+    margin: 2.4rem auto 0;
+    max-width: 100%;
+    padding: 0.8rem 1.5rem;
+    text-align: center;
+    width: fit-content;
+  }
+  .perfect-line .pill { background: var(--teal-deep); color: #ffffff; margin-right: 0.6rem; }
+  .see-all { margin-top: 1.5rem; }
+  .see-all a { font-weight: 700; }
+</style>
