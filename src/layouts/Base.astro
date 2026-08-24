@@ -43,6 +43,36 @@ const canonical = new URL(Astro.url.pathname, site.url).href;
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap"
     />
 
+    <!-- Meta Pixel — installed here rather than through the kit so it
+         initializes before anything else on the page (better event match
+         quality) and so Meta's verification tools find it in the page
+         source. The kit's own Meta bootstrap is skipped automatically
+         whenever window.fbq already exists, so PageView fires exactly once.
+         Consent: a visitor who declined has 'denied' stored by the kit —
+         we revoke before any event leaves the browser. -->
+    <script is:inline>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      try {
+        /* the kit stores this JSON-encoded, hence the quoted comparison */
+        if (localStorage.getItem('mk_consent') === '"denied"') fbq('consent', 'revoke');
+      } catch (e) { /* private mode — fall through to normal behaviour */ }
+      fbq('init', '1541182933882320');
+      fbq('track', 'PageView');
+    </script>
+    <noscript
+      ><img
+        height="1"
+        width="1"
+        style="display:none"
+        alt=""
+        src="https://www.facebook.com/tr?id=1541182933882320&ev=PageView&noscript=1"
+      /></noscript
+    >
+
     <!-- Marketing kit: config first, then the kit. IDs live in marketing.config.js -->
     <script src="/js/marketing.config.js" is:inline></script>
     <script src="/js/marketing-kit.js" defer is:inline></script>

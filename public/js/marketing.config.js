@@ -12,7 +12,12 @@ window.MARKETING_CONFIG = {
   // --- Tag containers / pixels ------------------------------------------------
   gtmId: '',            // TODO: e.g. 'GTM-XXXXXXX'  (preferred, single container)
   ga4Id: '',            // TODO: e.g. 'G-XXXXXXXXXX' (used only if gtmId is empty)
-  metaPixelId: '1541182933882320', // PLC Meta pixel (live) — used only if gtmId is empty
+  // Meta pixel 1541182933882320 is installed directly in the <head> (see
+  // src/layouts/Base.astro) so it loads before everything else and stays
+  // visible to Meta's verification tools. Leave this empty — the kit skips
+  // its own Meta bootstrap when window.fbq already exists, and conversion
+  // events are routed to that pixel either way.
+  metaPixelId: '',      // set this instead if you'd rather the kit load Meta itself
 
   // --- Consent ---------------------------------------------------------------
   consent: {

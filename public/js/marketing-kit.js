@@ -112,6 +112,9 @@
     gtag('consent', 'update', {
       ad_storage: v, ad_user_data: v, ad_personalization: v, analytics_storage: v,
     });
+    /* Meta doesn't read Google Consent Mode — tell the pixel directly, so a
+       decline stops it even when it was loaded outside the kit. */
+    if (window.fbq) window.fbq('consent', granted ? 'grant' : 'revoke');
     if (granted) loadTags();
     removeBanner();
   }
