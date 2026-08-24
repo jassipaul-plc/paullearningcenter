@@ -36,10 +36,21 @@ window.MARKETING_CONFIG = {
   // Clicks on links to these domains fire a conversion event and get the
   // decoration params appended. Works for any third-party destination —
   // or leave the list empty for projects without one.
+  // 'event' takes one name or several. Clicking through to Otute is the
+  // closest thing this site has to a completed enrollment lead, so it fires
+  // lead_complete alongside the granular enroll_click — the first is what
+  // ad campaigns optimise toward, the second is for reporting.
   conversionDomains: [
-    { domain: 'otute.com', event: 'enroll_click' },
+    { domain: 'otute.com', event: ['enroll_click', 'lead_complete'] },
     { domain: 'm.me', event: 'messenger_click' },
     { domain: 'wa.me', event: 'whatsapp_click' },
+  ],
+  // Same-site links worth measuring. Any link whose path starts with 'match'
+  // fires 'event' — so every route into the programs list or the enrollment
+  // landing page counts, wherever the button happens to live.
+  internalClicks: [
+    { match: '/programs/', event: 'Search' },
+    { match: '/session-2026-27/', event: 'Search' },
   ],
   decorate: {
     utm_source: 'paullearningcenter',

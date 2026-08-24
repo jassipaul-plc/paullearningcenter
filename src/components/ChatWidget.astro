@@ -206,7 +206,13 @@ import { site, whatsappUrl } from '../data/site.js';
   toggle?.addEventListener('click', () => {
     interacted = true;
     if (nudgeInterval) clearInterval(nudgeInterval);
-    setOpen(!widget?.classList.contains('open'));
+    const opening = !widget?.classList.contains('open');
+    setOpen(opening);
+    // Opening the widget is an intent signal in its own right — the visitor
+    // wants to talk before picking a channel. Only the open, never the close.
+    if (opening) {
+      (window as any).MarketingKit?.track?.('chat_click', { page: location.pathname });
+    }
   });
 
   // close when clicking anywhere else on the page

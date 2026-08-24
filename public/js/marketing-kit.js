@@ -201,10 +201,23 @@
 
   /* ---------- shared event API ---------- */
 
+  /* Meta's standard events must go through fbq('track', …); anything else is
+     a custom event. Sending a standard name via trackCustom would register it
+     as a look-alike custom event that Meta can't optimise against. */
+  var META_STANDARD = [
+    'PageView', 'ViewContent', 'Search', 'AddToCart', 'AddToWishlist',
+    'InitiateCheckout', 'AddPaymentInfo', 'Purchase', 'Lead',
+    'CompleteRegistration', 'Contact', 'CustomizeProduct', 'Donate',
+    'FindLocation', 'Schedule', 'StartTrial', 'SubmitApplication', 'Subscribe',
+  ];
+
   function track(eventName, params) {
     var payload = Object.assign({ event: eventName }, flatAttribution(), params || {});
     window.dataLayer.push(payload);                       // GTM / GA4 route
-    if (window.fbq) window.fbq('trackCustom', eventName, payload); // direct Meta route
+    if (window.fbq) {                                     // direct Meta route
+      var std = META_STANDARD.indexOf(eventName) !== -1;
+      window.fbq(std ? 'track' : 'trackCustom', eventName, payload);
+    }
   }
 
   /* ---------- 4. outbound conversion tracking ---------- */
@@ -241,14 +254,32 @@
       function (ev) {
         var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
         if (!a) return;
-        var host;
-        try { host = new URL(a.href, location.href).hostname; } catch (e) { return; }
-        var match = matchConversionDomain(host);
+        var url;
+        try { url = new URL(a.href, location.href); } catch (e) { return; }
+
+        /* same-site links: fire an event when the destination path matches */
+        if (url.hostname === location.hostname) {
+          var paths = cfg.internalClicks || [];
+          for (var i = 0; i < paths.length; i++) {
+            if (url.pathname.indexOf(paths[i].match) === 0) {
+              track(paths[i].event, {
+                link_path: url.pathname,
+                link_page: location.pathname,
+              });
+              break;
+            }
+          }
+          return;
+        }
+
+        var match = matchConversionDomain(url.hostname);
         if (!match) return;
         a.href = decorateUrl(a.href);
-        track(match.event || 'outbound_click', {
-          link_url: a.href,
-          link_page: location.pathname,
+        /* a domain may map to several events — e.g. a granular click event
+           for reporting plus a conversion event for ad optimisation */
+        var names = [].concat(match.event || 'outbound_click');
+        names.forEach(function (name) {
+          track(name, { link_url: a.href, link_page: location.pathname });
         });
       },
       true // capture phase: runs before navigation starts
