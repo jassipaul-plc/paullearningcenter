@@ -12,7 +12,7 @@ window.MARKETING_CONFIG = {
   // --- Tag containers / pixels ------------------------------------------------
   gtmId: '',            // TODO: e.g. 'GTM-XXXXXXX'  (preferred, single container)
   ga4Id: '',            // TODO: e.g. 'G-XXXXXXXXXX' (used only if gtmId is empty)
-  metaPixelId: '',      // TODO: e.g. '1234567890'   (used only if gtmId is empty)
+  metaPixelId: '1541182933882320', // PLC Meta pixel (live) — used only if gtmId is empty
 
   // --- Consent ---------------------------------------------------------------
   consent: {
