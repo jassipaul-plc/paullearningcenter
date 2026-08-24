@@ -16,7 +16,8 @@
  *   5. Lead tracking: forms marked data-mk-lead fire generate_lead;
  *      the thank-you page fires lead_complete
  *
- * Public API: window.MarketingKit = { getAttribution, track, consentStatus }
+ * Public API: window.MarketingKit =
+ *   { getAttribution, track, consentStatus, resetConsent }
  * ==========================================================================*/
 (function () {
   'use strict';
@@ -279,10 +280,29 @@
     initLeadTracking();
   }
 
+  /* Clear a previous choice and show the banner again, so a visitor who
+     declined can change their mind. Without this the decision is final and
+     invisible — the tags simply never load and nothing explains why. */
+  function resetConsent() {
+    try { localStorage.removeItem(CONSENT_KEY); } catch (e) { /* private mode */ }
+    var granted = consentStatus() === 'default-granted';
+    if (window.fbq) window.fbq('consent', granted ? 'grant' : 'revoke');
+    gtag('consent', 'update', {
+      ad_storage: granted ? 'granted' : 'denied',
+      ad_user_data: granted ? 'granted' : 'denied',
+      ad_personalization: granted ? 'granted' : 'denied',
+      analytics_storage: granted ? 'granted' : 'denied',
+    });
+    if (granted) loadTags();
+    removeBanner();
+    renderBanner();
+  }
+
   window.MarketingKit = {
     getAttribution: function () { return read(ATTR_KEY); },
     track: track,
     consentStatus: consentStatus,
+    resetConsent: resetConsent,
   };
 
   if (document.readyState === 'loading') {

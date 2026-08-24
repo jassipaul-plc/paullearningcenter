@@ -38,7 +38,10 @@ const year = new Date().getFullYear();
   </div>
   <div class="container bottom">
     <p>© {year} {site.name}. All rights reserved.</p>
-    <p><a href="/privacy/">Privacy Policy</a> · <a href="/terms/">Terms</a></p>
+    <p>
+      <a href="/privacy/">Privacy Policy</a> · <a href="/terms/">Terms</a> ·
+      <button type="button" class="linkish" id="cookie-settings">Cookie settings</button>
+    </p>
   </div>
 </footer>
 
@@ -66,6 +69,18 @@ const year = new Date().getFullYear();
   .col a { color: rgba(255, 255, 255, 0.85); display: block; margin: 0.35rem 0; text-decoration: none; }
   .col a:hover { color: #ffffff; text-decoration: underline; }
   .addr { font-size: 0.92rem; margin: 0.35rem 0; }
+
+  /* Reopens the consent banner — a button for semantics, styled as a link
+     so it sits naturally beside Privacy and Terms. */
+  .linkish {
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+    text-decoration: underline;
+  }
   .bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.18);
     display: flex;
@@ -79,3 +94,9 @@ const year = new Date().getFullYear();
   .bottom p { margin: 0; }
   .bottom a { color: rgba(255, 255, 255, 0.85); }
 </style>
+
+<script>
+  document.getElementById('cookie-settings')?.addEventListener('click', () => {
+    if (window.MarketingKit?.resetConsent) window.MarketingKit.resetConsent();
+  });
+</script>
